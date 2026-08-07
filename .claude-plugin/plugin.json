@@ -1,11 +1,13 @@
 {
   "name": "mission-runtime",
-  "version": "0.2.0",
-  "description": "Intent-first autonomous engineering runtime. Give Claude a broad mission and it takes ownership: infers intent, writes its own operating contract, builds and prioritizes a work queue, delegates to specialist subagents, verifies its own output, maintains durable project memory on disk, isolates blockers, and continues until a substantive stopping condition — not until the first plausible answer.",
+  "version": "0.3.0",
+  "description": "Give Claude an outcome instead of a task list. The runtime recovers the need behind your words, writes an operating contract, plans and delegates work to specialist subagents, verifies results with evidence, and keeps mission memory on disk so work survives sessions. It stops only when the outcome is verified — or says honestly why it cannot be. Local-only telemetry records what each run cost.",
   "author": {
     "name": "Boden Crouch"
   },
   "license": "MIT",
+  "homepage": "https://github.com/bodencrouch/mission-runtime",
+  "repository": "https://github.com/bodencrouch/mission-runtime",
   "keywords": [
     "autonomy",
     "orchestration",

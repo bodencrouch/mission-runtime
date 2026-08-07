@@ -1,168 +1,160 @@
 # mission-runtime
 
-An intent-first autonomous engineering runtime for Claude. Give it a job, not
-a task list: state a broad outcome ("make Linux setup solid", "improve this
-app's performance", "take ownership of reliability") and the runtime
-reconstructs your intent, writes its own operating contract, plans and
-prioritizes the work, delegates to specialist subagents, verifies its own
-output, and keeps generating mission-traceable follow-up work until a
-substantive stopping condition is reached — not until the first plausible
-answer.
+A Claude Code plugin that turns a one-sentence goal into finished, verified
+engineering work.
 
-## What it changes about Claude's behavior
+You say what you want to be true: "make this reliable", "clean up this
+codebase", "get it production-ready". The plugin works out what you actually
+need, writes the plan down, does the work, tests it, and tells you when it is
+done and why. You do not have to write careful prompts. You do not have to
+manage steps. You do not have to repeat yourself tomorrow.
 
-- **Mission over task**: outcome-shaped requests are interpreted as
-  delegation of responsibility, implicitly authorizing investigation,
-  prioritization, implementation, testing, review, docs, and follow-up.
-- **Default to action**: safe, reversible, evidence-supported choices are
-  made and logged, never bounced back as questions. Questions pass a strict
-  gate (irreversible, credential, legal/security authority, or materially
-  conflicting requirements — and only after all independent work is done).
-- **Persistent control loop**: interpret → inspect → model → queue → execute
-  → verify → learn → replan, until the stopping policy fires.
-- **Durable memory**: a `.mission/` directory at the project root holds the
-  contract, resume capsule, work ledger, decision log, assumption register,
-  attempt history, and verification ledger. Missions survive context
-  compaction, session death, and multi-day gaps. (Kept out of your VCS via
-  `.git/info/exclude`; your `.gitignore` is never touched.)
-- **Supervised specialists**: subagents report evidence to the orchestrator,
-  which validates, reconciles, and integrates — one accountable owner, no
-  transcript dumps.
-- **Verification as completion**: reproduce → root-cause → fix → regression
-  test → suite → sibling sweep → independent adversarial audit for anything
-  consequential.
-- **Real stopping policy**: quiescence on evidence-backed completion,
-  diminishing returns, budget, or an irreducible human dependency — always
-  with a final state report (accomplished, verified, assumed, unresolved,
-  next worthwhile work).
+## Install
 
-## Components
+In Claude Code, run:
 
-**Skills**
+```
+/plugin marketplace add bodencrouch/mission-runtime
+/plugin install mission-runtime@mission-runtime
+```
 
-- `mission` — intake (the "introducer": sparse-intent reconstruction →
-  operating contract) plus the persistent control loop. Reference docs cover
-  the contract template and evidence hierarchy, the loop and prioritization,
-  the memory schema, the delegation protocol, verification and failure
-  recovery, continuation/stopping policy, and the telemetry design.
-- `mission-resume` — reload `.mission/` in any later session, reconcile
-  against repo reality, and re-enter the loop without re-asking anything.
-- `mission-status` — declarative progress or final report from the ledgers;
-  never a disguised permission request.
-- `mission-telemetry` — report the recorded run data, check that recording is
-  working, and change the telemetry settings.
+That is the whole setup. There are no packages to install and no accounts to
+create. The plugin's scripts need Python 3, which most systems already have.
 
-**Agents**
+**Know before you install:** the plugin records what each run did — including
+your prompts, in full — to a folder on your own computer
+(`~/.missionruntime/`). Nothing leaves your machine. To record nothing, set
+the environment variable `MISSIONRUNTIME_TELEMETRY=off`. Details in
+[Telemetry](#telemetry).
 
-repo-cartographer, research-analyst, implementation-engineer, test-engineer,
-security-reviewer, code-quality-reviewer, regression-investigator,
-docs-writer, adversarial-critic. Reviewers and investigators are
-read-only/diagnose-only by design; writers carry bounded file scopes.
+## Start your first mission
 
-## Usage
+Tell Claude the outcome you want:
 
-Say what you want to be true:
+> Take ownership of this repository and make its Linux install reliable.
 
-- "Take ownership of this repository and make its Linux installation and
-  startup experience reliable."
-- "Make it fast."
-- "Get this service production-ready."
+Then let it run. Here is what happens:
 
-Then let it run. Check in anytime with "mission status"; continue a previous
-session with "resume the mission". Redirect at will — your messages amend the
-contract; silence means "continue".
+1. Claude reads your message and your repository, and works out the goal
+   behind your words. Vague words like "reliable" become concrete checks it
+   can test.
+2. It writes a contract: the goal, what counts as done, what it may do on its
+   own, and where it must stop. The contract lives in a `.mission/` folder in
+   your project.
+3. Its first reply opens with a readback: what it understood, and what it is
+   doing first. If it misread you, one corrective line fixes it.
+4. It plans the work and does the highest-value task first. For specialist
+   jobs it sends out its own agents — one maps the repo, one researches, one
+   writes code, one tests, one tries to break the finished work.
+5. It reports when something real happens: a finding, a decision, a risk, a
+   finished piece. Your silence means "keep going".
+6. It stops when the goal is met with evidence — or tells you honestly why it
+   cannot get there — and leaves a final report.
+
+You can close your laptop mid-mission. The `.mission/` folder holds
+everything. Say "resume the mission" in any later session and it picks up
+where it left off, without you re-explaining anything.
+
+## Say it, get it
+
+| You say | What happens |
+|---|---|
+| Any outcome-shaped goal — "make the tests solid" | A mission starts (`/mission-runtime:mission`) |
+| "mission status", "what's left?" | A progress report (`/mission-runtime:mission-status`) |
+| "resume the mission" | Picks up a paused mission (`/mission-runtime:mission-resume`) |
+| "how much did that mission cost?", "stop recording my prompts" | Telemetry answers and settings (`/mission-runtime:mission-telemetry`) |
+
+Mid-mission, just talk. "Oh, and it should also run on Windows" folds into
+the plan. "Just the task" scales a mission down to the one thing you named.
+Every ask you make lands in the work ledger — nothing you say gets silently
+dropped.
+
+## How it works
+
+**The contract.** Your message is treated as evidence of what you need, not
+as a literal task list. The plugin writes down its interpretation before it
+works, so a wrong guess is cheap to catch and correct.
+
+**The loop.** Plan, do the most valuable task, verify it, learn from the
+result, replan. Finishing the obvious first task is not the end — the loop
+asks what the goal still needs, and keeps going until a real stopping
+condition is met.
+
+**The agents.** Nine specialists handle bounded jobs: mapping the repo,
+research, implementation, tests, security review, code review, failure
+diagnosis, docs, and a final independent audit. Each gets a scoped
+assignment and reports evidence back. Reviewers cannot write files; writers
+get exact file boundaries.
+
+**Verification.** Work does not count until it is proven: reproduce the
+problem first, fix the cause, add a test that fails without the fix, run the
+suite, and — for anything consequential — have an independent agent try to
+break the claim.
+
+**Questions.** It only interrupts you when evidence genuinely cannot decide
+— missing credentials, an irreversible step, two of your requirements in
+direct conflict. Even then it finishes everything else first, and tells you
+what happens if you never answer.
+
+**Stopping.** It stops when the goal is verifiably met, when what remains is
+not worth the cost, or when it has honestly failed — and says which, with
+evidence. Never with a bare "done".
+
+## The .mission folder
+
+Missions keep their memory in `.mission/` at your project root: the
+contract, the current state, the work queue, decisions, assumptions, failed
+attempts, and test evidence. This folder is why a mission survives closed
+sessions and multi-day gaps.
+
+It is kept out of your version control automatically (via
+`.git/info/exclude` — your `.gitignore` is never touched). Deleting the
+folder deletes the mission's memory.
 
 ## Telemetry
 
-Every run leaves a record on disk, so the runtime's cost can be measured
-instead of guessed at.
+Every run leaves a local record, so you can measure what the plugin costs
+you instead of guessing.
 
-**Read this first.** Your prompts and tool inputs are recorded in full by
-default. Records are written to `~/.missionruntime/` on your own machine.
-Nothing is transmitted anywhere. `MISSIONRUNTIME_TELEMETRY=off` stops
-recording. Redaction and a config file are described below.
+What is recorded: session timings, tool activity, agents launched, and your
+prompts — in full, by default. Where: `~/.missionruntime/` on your machine.
+Nothing is ever transmitted.
 
-**How it records.** Claude Code loads `hooks/hooks.json` from the plugin, so
-recording starts with no setup. On each hook event the host runs
-`scripts/mr_record.py`, which reads the payload on stdin, derives a normalized
-view of the fields that matter for benchmarking, and appends one JSON line to
-`~/.missionruntime/sessions/<date>/<session-id>.jsonl`. The recorder exits 0 on
-every path — including malformed input and write failures — because several
-hook events treat a non-zero exit as "block this action". Errors go to
-`~/.missionruntime/recorder.err` instead.
-
-**When hooks cannot run.** If the host has hooks disabled — `disableAllHooks`,
-enterprise policy, `--bare` mode, an unsupported host — the runtime writes its
-own records instead. That path carries no tool-level data and depends on the
-model remembering to write, so read those sessions as incomplete, not as cheap.
-
-**Reading the data.** Ask for it in plain words — "show mission stats", "how
-much did that mission cost" — and the `mission-telemetry` skill runs the
-commands. Or run them yourself from the plugin directory:
+Read the numbers:
 
 ```
-python3 scripts/mr_report.py             # summary
+python3 scripts/mr_report.py             # summary; missions vs. ordinary sessions
 python3 scripts/mr_report.py --sessions  # one row per session
-python3 scripts/mr_report.py --json      # machine-readable
-python3 scripts/mr_report.py --days 7    # last 7 days only
 ```
 
-The report separates mission sessions from ordinary ones, and that comparison
-is the benchmark. A session counts as a mission when a `.mission/` directory
-exists in the working directory at the time of the event. The numbers are cost
-only — wall-clock, tool calls, prompts, subagent counts — and the report says
-so rather than claiming a verdict.
+The report gives costs only — time, tool calls, agent counts. It does not
+claim the runtime was worth it; that judgment needs your own verdict on what
+each run produced.
 
-With no store on disk yet, the report prints where it looked and points you at
-the doctor.
-
-**Checking that it works.** An empty store and a broken recorder look the same
-from the outside, so ask:
+Check recording works:
 
 ```
 python3 scripts/mr_doctor.py
 ```
 
-It reports the interpreter, whether the recorder runs, which config and
-switches are in force, which hosts are wired, and how old the newest record is.
-It exits non-zero when it finds a problem.
-
-**Turning it down or off.** Environment variables win over the config file.
+Turn it down or off (environment variables win over the config file):
 
 - `MISSIONRUNTIME_TELEMETRY=off` — record nothing.
-- `MISSIONRUNTIME_REDACT=1` — store a length and a short digest instead of the
-  text. The raw payload is dropped whole rather than filtered.
+- `MISSIONRUNTIME_REDACT=1` — store text lengths instead of text.
 - `MISSIONRUNTIME_HOME=<path>` — move the store.
-- `~/.missionruntime/config.json` — optional file with the keys `enabled`,
-  `redact_text`, `max_text_chars`, `capture_tool_io`, and `max_payload_bytes`.
-  A malformed file falls back to defaults rather than failing.
+- `~/.missionruntime/config.json` — the same switches, in a file.
 
-To delete history, remove `~/.missionruntime/sessions/`.
+Delete history by removing `~/.missionruntime/sessions/`.
 
-**Other hosts.** Claude Code is the host this was built and exercised against.
-Hook configs for Cursor, Copilot, and Codex ship in `hooks/`, written from each
-vendor's documentation but not yet tested against a live host — treat them as
-unproven. Install one with:
+Claude Code records automatically. Config templates for Cursor, Copilot, and
+Codex ship in `hooks/` but have not been tested against those hosts — treat
+them as unproven. Install one with
+`python3 scripts/mr_install_hooks.py --host cursor --apply`. The full design
+is in `skills/mission/references/telemetry.md`.
 
-```
-python3 scripts/mr_install_hooks.py --host cursor --apply
-```
+## Requirements
 
-Without `--apply` the script prints its plan and writes nothing. It backs up
-any file already at the target before replacing it.
+- Claude Code.
+- Python 3 for the telemetry scripts. They use only the standard library.
 
-## Setup
-
-Installing the plugin requires no setup for Claude Code: no MCP servers, no
-build step, no packages to install. State a mission and it runs.
-
-Telemetry also works out of the box on its defaults, and records to
-`~/.missionruntime/`. Nothing below is required:
-
-- `MISSIONRUNTIME_TELEMETRY`, `MISSIONRUNTIME_REDACT`, and
-  `MISSIONRUNTIME_HOME` change what is recorded and where.
-- `~/.missionruntime/config.json` sets the same options in a file.
-
-See Telemetry above for what each one does.
-
-The telemetry scripts need Python 3 and import only the standard library.
+No other dependencies. No build step. No network calls.
