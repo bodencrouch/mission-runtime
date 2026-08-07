@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "_comment": "mission-runtime telemetry for Cursor. Install with scripts/mr_install_hooks.py --host cursor, which replaces __MR_CMD__ with the resolved recorder path. Target: ~/.cursor/hooks.json or <project>/.cursor/hooks.json.",
+  "hooks": {
+    "sessionStart": [
+      { "type": "command", "command": "__MR_CMD__ --event SessionStart --host cursor" }
+    ],
+    "sessionEnd": [
+      { "type": "command", "command": "__MR_CMD__ --event SessionEnd --host cursor" }
+    ],
+    "beforeSubmitPrompt": [
+      { "type": "command", "command": "__MR_CMD__ --event UserPromptSubmit --host cursor" }
+    ],
+    "subagentStart": [
+      { "type": "command", "command": "__MR_CMD__ --event SubagentStart --host cursor" }
+    ],
+    "subagentStop": [
+      { "type": "command", "command": "__MR_CMD__ --event SubagentStop --host cursor" }
+    ],
+    "postToolUse": [
+      { "type": "command", "command": "__MR_CMD__ --event PostToolUse --host cursor" }
+    ],
+    "stop": [
+      { "type": "command", "command": "__MR_CMD__ --event Stop --host cursor" }
+    ]
+  }
+}

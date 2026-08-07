@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "disableAllHooks": false,
+  "_comment": "mission-runtime telemetry for GitHub Copilot. Install with scripts/mr_install_hooks.py --host copilot. Target: ~/.copilot/hooks/mission-runtime.json (CLI) or <project>/.github/hooks/mission-runtime.json. Event names use the PascalCase form, which both Copilot CLI and VS Code accept.",
+  "hooks": {
+    "SessionStart": [
+      { "type": "command", "command": "__MR_CMD__ --event SessionStart --host copilot" }
+    ],
+    "SessionEnd": [
+      { "type": "command", "command": "__MR_CMD__ --event SessionEnd --host copilot" }
+    ],
+    "UserPromptSubmit": [
+      { "type": "command", "command": "__MR_CMD__ --event UserPromptSubmit --host copilot" }
+    ],
+    "SubagentStart": [
+      { "type": "command", "command": "__MR_CMD__ --event SubagentStart --host copilot" }
+    ],
+    "SubagentStop": [
+      { "type": "command", "command": "__MR_CMD__ --event SubagentStop --host copilot" }
+    ],
+    "PostToolUse": [
+      { "type": "command", "command": "__MR_CMD__ --event PostToolUse --host copilot" }
+    ],
+    "Stop": [
+      { "type": "command", "command": "__MR_CMD__ --event Stop --host copilot" }
+    ]
+  }
+}
