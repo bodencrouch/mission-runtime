@@ -3,14 +3,14 @@
   "name": "mission-runtime",
   "description": "Intent-first autonomous engineering runtime for Claude Code",
   "owner": {
-    "name": "Benjamin Auquite"
+    "name": "Boden Crouch"
   },
   "plugins": [
     {
       "name": "mission-runtime",
       "description": "Intent-first autonomous engineering runtime. Give Claude a broad mission and it takes ownership: infers intent, writes its own operating contract, builds and prioritizes a work queue, delegates to specialist subagents, verifies its own output, maintains durable project memory on disk, isolates blockers, and continues until a substantive stopping condition — not until the first plausible answer.",
       "author": {
-        "name": "Benjamin Auquite"
+        "name": "Boden Crouch"
       },
       "source": "./",
       "category": "development",
