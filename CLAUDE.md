@@ -4,89 +4,59 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**mission-runtime** is a Claude plugin that implements an intent-first autonomous engineering runtime. It enables Claude to take ownership of outcome-shaped missions (e.g., "make this reliable", "improve performance") rather than bounded tasks, maintaining persistent state across sessions and delegating work to specialist agents.
+**mission-runtime** is a Claude Code plugin that implements an intent-first autonomous engineering runtime. It lets Claude take ownership of outcome-shaped missions ("make this reliable", "improve performance") rather than bounded tasks, keeping persistent state on disk across sessions and delegating bounded work to specialist agents.
 
-The system's core philosophy: reconstruct user intent from sparse input, write an operating contract that states assumptions and constraints, execute a persistent control loop (interpret → inspect → model → queue → execute → verify → learn → replan), delegate to specialists, and stop only on evidence-backed substantive conditions.
+Core mechanism: recover the need behind the user's words, write an operating contract, run a persistent control loop (interpret → inspect → model → queue → execute → verify → update memory → generate follow-ups → replan), verify with evidence, and stop only on a substantive condition — including an honest declaration of failure when no route remains.
 
-A telemetry layer records what each run did to `~/.missionruntime/` on local disk, so the runtime's cost can be measured rather than guessed at. See Telemetry Subsystem below.
+Product grounding (problem, approach, metrics, tracks) lives in `STRATEGY.md`. A telemetry layer records what each run did to `~/.missionruntime/` on local disk; see Telemetry Subsystem below.
+
+## The prompt surfaces are the product
+
+Almost everything in this repo is instructions: skills, reference docs, agent definitions, and this file. `docs/prompt-style.md` is the standard for writing and editing any of them — instruction framing, altitude, register, structure, layering, and the per-change verification checklist. Read it before editing any `.md` file under `skills/` or `agents/`, and hold changes to its rules.
 
 ## Architecture
 
 ### Skills (`skills/` directory)
 
-Four skills implement the runtime:
+Four skills, each `skills/<name>/SKILL.md` with frontmatter `name`, `description` (the trigger surface — concrete quoted phrases, third person), and `metadata.version` (kept equal to the plugin version):
 
-- **mission** (`skills/mission/SKILL.md`) — The orchestrator. Handles intake (intent reconstruction → operating contract), persistent control loop management, delegation to agents, memory updates, and stopping policy. Runs the cycle: interpret → inspect → model → build queue → execute → verify → update memory → generate follow-ups → replan. Reference docs in `skills/mission/references/` cover the contract template, memory schema, loop mechanics, delegation protocol, verification strategy, stopping conditions, and telemetry.
-
-- **mission-resume** (`skills/mission-resume/SKILL.md`) — Reload `.mission/` state in new sessions, reconcile against repo reality, and re-enter the loop without re-asking anything. Used when continuing a previous mission.
-
-- **mission-status** (`skills/mission-status/SKILL.md`) — Declarative progress or final report from the ledgers, never a permission request. Shows what's done, active, blocked, and what's next.
-
-- **mission-telemetry** (`skills/mission-telemetry/SKILL.md`) — Reports the recorded run data, checks that recording is working, and changes the telemetry settings. Runs `scripts/mr_doctor.py` before quoting numbers, because an empty store and a broken recorder look identical.
+- **mission** — the orchestrator: intake (need-behind-the-ask diagnosis, message normalization, contract, readback), the control loop, delegation, verification, the question gate, communication rules, stopping. Its eight reference docs live in `skills/mission/references/` and are each linked once from the SKILL.md body:
+  - `intent-contract.md` — need diagnosis, message-normalization repair table, evidence hierarchy, confidence tiers, contract template, readback, the canonical question gate (question packets with silence-defaults).
+  - `control-loop.md` — loop stages with consequence-proportional ceremony, prioritization, parallelism and conflict control, stall detection, context management, budgets.
+  - `amendment.md` — mid-mission directives: ledger-first landing, four-verdict triage, blast-radius sweep, effect boundary.
+  - `delegation.md` — roster, the work packet (context-first ordering, deliverable type, scope fence, progress-grounding), dispatch rules, the falsifiable integration protocol.
+  - `memory.md` — `.mission/` ledger schemas and the resumption protocol (capsule freshness, orphan demotion, HEAD-anchor reconciliation).
+  - `verification.md` — tiered verification depth, the evidence standard, independent review routing, the problem-id circuit breaker (three attempts, then stop-and-choose).
+  - `stopping.md` — continuation review, stopping conditions, stop-as-decision, failure reports, the final report template.
+  - `telemetry.md` — the two capture paths, the fallback record shape, privacy controls, the recorder's three rules.
+- **mission-resume** — reload `.mission/`, reconcile against repo reality, re-enter the loop without re-asking anything.
+- **mission-status** — declarative progress or final report from the ledgers, anchored on the capsule's Reported-through timestamp; never a permission request.
+- **mission-telemetry** — report recorded run data, check that recording works (doctor first, always), change telemetry settings.
 
 ### Agents (`agents/` directory)
 
-Specialist agents handle bounded work packets dispatched by the orchestrator:
+Nine specialists, one `.md` each, frontmatter `name`, `description` (plain prose: capability, trigger scenarios, when-not-to — no example transcripts), `model: inherit`, `color` (from the documented set: red, blue, green, yellow, purple, orange, pink, cyan), and `tools` — **always declared, least privilege, no `Agent`** (specialists must not sub-delegate). Bodies are second person: role → "When to invoke" → method → discipline → required report format.
 
-- **repo-cartographer** — Maps repo layout, dependencies, test structure, deployment config, and conventions. Read-only inspection work run early in a mission.
+- Read-only by charter (report returned as final message; orchestrator saves it to `.mission/notes/`): **repo-cartographer**, **research-analyst**, **security-reviewer**, **code-quality-reviewer**, **regression-investigator**, **adversarial-critic**. Four of these hold Bash for read-only inspection; the charter and tools list together are the enforcement.
+- Writers (save their own note file, return a terse summary): **implementation-engineer**, **test-engineer** (both: Read, Grep, Glob, Bash, Write, Edit), **docs-writer** (docs files only).
 
-- **implementation-engineer** — Executes a decided plan within explicit file scope. Implements changes, adds regression tests, verifies locally. Bounded by architecture decision already made.
-
-- **test-engineer** — Builds regression tests, verifies fixes, runs test suite, checks coverage. Gets a decided fix or hypothesis and proves it.
-
-- **security-reviewer** — Audits code for auth, permission checks, input validation, secrets leakage, and injection vectors. Read-only diagnosis.
-
-- **code-quality-reviewer** — Reviews for maintainability, complexity, naming, duplication, type safety, dead code. Read-only.
-
-- **regression-investigator** — Reproduces failures, identifies root cause, traces through relevant code. Diagnoses before fix is attempted.
-
-- **docs-writer** — Drafts or updates documentation and README sections. Scoped to specific doc files.
-
-- **research-analyst** — Researches external libraries, best practices, design patterns, and prior art. Gathers external grounding for architectural decisions.
-
-- **adversarial-critic** — Challenges assumptions and decisions, tries to break implementations, surfaces edge cases and risks. Final independent audit gate.
-
-## Persistent Memory System
-
-`.mission/` directory at project root holds the runtime's persistent state (kept out of VCS via `.git/info/exclude`). This survives session death and context compaction.
-
-### Key Files
-
-- **mission.md** — Operating contract (write once, amend rarely). States: mission outcome, scope, constraints, authority tiers, quality bar, evidence standard, communication rules, stopping policy.
-
-- **state.md** — Resume capsule (rewrite frequently). Compact snapshot of project model, completed work, active task, assumptions in force, blockers, risks, next action. Read first on session reload.
-
-- **queue.md** — Work ledger (append-only log of work). Sections: Pending (priority-ordered with trace to mission), Active, Blocked, Deferred, Done. Each entry links to why it matters.
-
-- **decisions.md** — Decision log. Records what was chosen, evidence considered, alternatives, reversibility. Build institutional memory.
-
-- **assumptions.md** — Register of provisional assumptions with confidence levels. Separate from facts so they don't calcify.
-
-- **attempts.md** — Attempt history. What was tried, why it failed, what that teaches. Prevents circular retry.
-
-- **verification.md** — Verification ledger. Test commands run, results, evidence of fixes, regression tests added, suite runs. Claims of success require observable data.
-
-- **notes/** — Agent reports and technical details. Implementation notes, test results, findings outside scope, risks.
+Falsification routing: broken behavior → regression-investigator; code quality → code-quality-reviewer; a completion claim or the ledgers → adversarial-critic.
 
 ## Telemetry Subsystem
 
-This is where the plugin's executable code lives; the rest of the repo is markdown and JSON. It records what each run did so the runtime can be benchmarked. Records live in `~/.missionruntime/` — outside any repo, shared across hosts and projects — and are never transmitted. Design rationale is in `skills/mission/references/telemetry.md`.
+This is where the plugin's executable code lives; the rest of the repo is markdown and JSON. Records live in `~/.missionruntime/` — outside any repo, shared across hosts and projects — and are never transmitted. Design rationale: `skills/mission/references/telemetry.md`.
 
 ### Scripts (`scripts/` directory)
 
-- **mr_record.py** — The recorder. Reads one host hook payload from stdin, derives a normalized view (session id, cwd, tool name, agent type, durations, status) using per-field candidate name lists, retains the whole raw payload so a host renaming a field does not destroy old data, and appends one NDJSON line to `~/.missionruntime/sessions/<YYYY-MM-DD>/<session-id>.jsonl`. It marks a record `mission_active` when the event's cwd contains a `.mission/` directory — the flag the benchmark comparison is built on. It exits 0 on every path and swallows its own errors to `~/.missionruntime/recorder.err`, because hosts treat a non-zero exit on several events as "block this action".
-
-- **mr_report.py** — Aggregates the NDJSON into per-session rows, then compares mission sessions against non-mission ones. Flags: `--days N`, `--sessions` (per-session table), `--json`. Reports cost only (wall-clock, tool calls, prompts, subagent counts) and explicitly declines to score value.
-
-- **mr_doctor.py** — Checks whether recording is actually happening: interpreter, recorder runs, config and env switches in force, `hooks/hooks.json` parses, which other hosts are wired, store size and freshness, recorder error log. Exits 1 when it finds a problem.
-
-- **mr_install_hooks.py** — Renders a host hook template with an absolute path to the recorder and writes it to that host's config location. `--host cursor|copilot|codex`, `--scope user|project`, `--apply`. Dry run by default; backs up an existing target before replacing it. Claude Code never needs this.
+- **mr_record.py** — the recorder. Reads one host hook payload from stdin, derives a normalized view (session id, cwd, tool name, agent type, durations, status) using per-field candidate name lists, retains the whole raw payload so a host renaming a field does not destroy old data, and appends one NDJSON line to `~/.missionruntime/sessions/<YYYY-MM-DD>/<session-id>.jsonl`. It marks a record `mission_active` when the event's cwd contains a `.mission/` directory — the flag the benchmark comparison is built on. It exits 0 on every path and swallows its own errors to `~/.missionruntime/recorder.err`, because hosts treat a non-zero exit on several events as "block this action".
+- **mr_report.py** — aggregates the NDJSON into per-session rows, then compares mission sessions against non-mission ones. Flags: `--days N`, `--sessions`, `--json`. Reports cost only (wall-clock, tool calls, prompts, subagent counts) and explicitly declines to score value.
+- **mr_doctor.py** — checks whether recording is actually happening: interpreter, recorder runs, config and env switches, `hooks/hooks.json` parses, which hosts are wired, store size and freshness, recorder error log. Exits 1 when it finds a problem.
+- **mr_install_hooks.py** — renders a host hook template with an absolute recorder path and writes it to that host's config location. `--host cursor|copilot|codex`, `--scope user|project`, `--apply`. Dry run by default; backs up an existing target. Claude Code never needs this.
 
 ### Hook configs (`hooks/` directory)
 
-- **hooks.json** — Claude Code. Loaded from the plugin automatically, no install step. Wires SessionStart, UserPromptSubmit, PreToolUse (matchers `Agent|Task` → SubagentSpawn and `Skill` → SkillInvoke), SubagentStart, SubagentStop, PostToolUse, Stop, SessionEnd. Every hook sets `suppressOutput: true`, and all of them are `async: true` except SessionEnd, which uses `timeout: 5` because an async hook is not guaranteed to finish as the session tears down. A test enforces that split; changing it needs a reason.
-
-- **cursor.json**, **copilot.json**, **codex.json** — Templates for the other hosts, with `__MR_CMD__` as the recorder placeholder that `mr_install_hooks.py` substitutes. Written from vendor documentation and not yet tested against a live host; treat them as unproven.
+- **hooks.json** — Claude Code; loaded from the plugin automatically. Wires SessionStart, UserPromptSubmit, PreToolUse (matchers `Agent|Task` → SubagentSpawn and `Skill` → SkillInvoke), SubagentStart, SubagentStop, PostToolUse, Stop, SessionEnd. Every hook sets `suppressOutput: true`; all are `async: true` except SessionEnd (`timeout: 5`), because an async hook is not guaranteed to finish during teardown. A test enforces that split; changing it needs a reason.
+- **cursor.json**, **copilot.json**, **codex.json** — templates for other hosts with `__MR_CMD__` as the recorder placeholder. Written from vendor documentation and untested against live hosts; treat as unproven.
 
 ### Configuration
 
@@ -94,144 +64,54 @@ Environment variables beat the config file. Defaults live in `DEFAULT_CONFIG` in
 
 - `MISSIONRUNTIME_TELEMETRY=off` — record nothing.
 - `MISSIONRUNTIME_REDACT=1` — replace text with a length plus a short digest, and drop the raw payload whole rather than filtering it.
-- `MISSIONRUNTIME_HOME=<path>` — relocate the store. `mr_record.py`, `mr_report.py`, and `mr_doctor.py` honor it, which is how the tests stay out of a real store. `mr_install_hooks.py` does not read it; it only writes host configs.
-- `~/.missionruntime/config.json` — optional: `enabled`, `redact_text`, `max_text_chars`, `capture_tool_io`, `max_payload_bytes`. A malformed file falls back to defaults instead of failing.
+- `MISSIONRUNTIME_HOME=<path>` — relocate the store. `mr_record.py`, `mr_report.py`, and `mr_doctor.py` honor it (this is how the tests stay out of a real store). `mr_install_hooks.py` does not read it.
+- `~/.missionruntime/config.json` — optional: `enabled`, `redact_text`, `max_text_chars`, `capture_tool_io`, `max_payload_bytes`. A malformed file falls back to defaults.
 
-Prompts and tool inputs are captured in full by default. That is a deliberate trade-off, documented in `references/telemetry.md`, and it is why the off switch and the redaction switch have to keep working.
+Prompts and tool inputs are captured in full by default — a deliberate trade-off documented in `skills/mission/references/telemetry.md`, and why the off switch and redaction switch must keep working.
 
 ### Tests (`tests/` directory)
 
-`tests/test_telemetry.py` covers the properties the subsystem is not allowed to lose: the recorder exits 0 on hostile input, an unwritable store, and a path-traversal session id; host dialects (Claude, Cursor, Copilot) normalize to the same fields; the config and env switches take effect and env wins; the report survives a corrupt line and an empty store; the shipped hook configs parse, reference the recorder, and stay async; and the installer renders valid JSON and backs up what it replaces. Tests that write records point `MISSIONRUNTIME_HOME` at a temporary directory, so running them does not touch a real store. Run:
+Two suites, run together. Run exactly:
 
 ```
 python3 -m unittest discover -s tests
 ```
 
-## Control Loop and Task Execution
-
-### One Cycle Looks Like
-
-1. Load `.mission/mission.md` (the contract is the fixed point)
-2. Gather evidence via inspection (delegate repo scan, analysis work concurrently)
-3. Update project model in `.mission/state.md` (facts, unknowns, risks, components)
-4. Turn mission + evidence into prioritized tasks in `.mission/queue.md` with traceability
-5. Execute highest-value unblocked task (do directly or delegate per scope and expertise)
-6. Verify work (reproduce → root cause → test → regression sweep → if consequential, adversarial audit)
-7. Update ledgers with results, new facts, new tasks, changed priorities
-8. Generate follow-up work from continuation questions in `references/stopping.md`
-9. Replan: is the current plan still best? Any stalls?
-10. Continue loop or fire stopping policy
-
-### Prioritization
-
-Never FIFO. Weigh: mission relevance, user impact, severity, diagnostic confidence, expected improvement, evidence value (uncertainty reduction?), risk, reversibility, cost, dependency position (blocks other work?), and parallelism.
-
-### Delegation Pattern
-
-Each agent packet includes: objective, context, scope, constraints, evidence standard, required report format. Examples:
-
-- "Map the codebase" → repo-cartographer
-- "Diagnose why startup is slow" → regression-investigator (read-only trace through code + timing)
-- "Implement the agreed fix to X" → implementation-engineer (bounded scope, one file or disjoint set)
-- "Build a regression test for Y" → test-engineer
-
-Read-only work (inspect, diagnose, research, review) runs in parallel. Writers get non-overlapping file scopes or explicit merge strategy.
-
-## Reference Documentation
-
-Key design documents in `skills/mission/references/`:
-
-- **intent-contract.md** — Contract template. Reconstructing intent from evidence hierarchy (explicit words → prior conversation → docs → repo structure → conventions → safe defaults). Separating explicit requirements, implications, constraints, assumptions, decisions.
-
-- **control-loop.md** — Loop mechanics, prioritization heuristics, parallelism rules, conflict avoidance for concurrent writers, stall detection.
-
-- **delegation.md** — Bounding work packets, reporting structure, orchestrator's validation gate for subagent findings, reconciliation of conflicts.
-
-- **verification.md** — Verification as completion gate. Reproduce → root cause → prove fix with test → run suite → regression sweep → for high-consequence changes, adversarial audit. Evidence standards.
-
-- **stopping.md** — Continuation review questions after each deliverable (unverified assumptions?, untested edges?, regressions?, docs stale?, unnecessary complexity?, flaky tests?). Stopping conditions: acceptance criteria met + clean review, remaining work low-value, diminishing returns, budget, irreducible human dependency.
-
-- **memory.md** — Ledger schema and append-only practices. When to create, update, and read `.mission/` files.
-
-- **telemetry.md** — What the runtime records and why. The two capture paths (host hooks primary, skill-written records as a degraded fallback), how to tell which one is live, the record shape the fallback must match, the privacy trade-off and its controls, and the three rules the recorder may not break (never block, never guess a schema, never phone home).
+- `tests/test_telemetry.py` covers the properties the telemetry subsystem may not lose: recorder exits 0 on hostile input, unwritable store, path-traversal session ids; host dialects normalize to the same fields; config/env switches take effect and env wins; the report survives corrupt lines and empty stores; hook configs parse, reference the recorder, and stay async; the installer renders valid JSON and backs up what it replaces. Tests point `MISSIONRUNTIME_HOME` at a temp directory.
+- `tests/test_runtime_conformance.py` mechanically enforces the style guide on the markdown runtime: skill/agent frontmatter shape, description length and person, `metadata.version` == plugin version, SKILL.md line ceiling, every reference linked from the mission SKILL.md exactly once, agent `tools` declared least-privilege (read-only set excludes write tools; no `Agent` anywhere), prose descriptions, valid colors, delegation roster completeness, the four hazard-pattern greps, and manifest description/version parity.
 
 ## Working With This Codebase
 
-### For New Skill or Agent Development
+### Editing skills, agents, or references
 
-1. Create a new `.md` file with frontmatter. Skills go in `skills/<skill-name>/SKILL.md` and carry `name`, `description`, and `metadata` (which holds `version`). Agents go in `agents/<agent-name>.md` and carry `name`, `description`, `model`, `color`, and `tools`. Seven of the nine agents declare `tools` explicitly; `implementation-engineer` and `test-engineer` leave it out. Declare it — a read-only reviewer that can write is a reviewer that can break its own contract.
-2. Frontmatter triggers: when should this skill/agent be used? The name determines when Claude Code recognizes and invokes it.
-3. Agent body: system prompt that defines behavior, constraints, reporting format.
-4. Skills include reference docs (in `skills/skill-name/references/`) when architecture is complex (state machines, ledgers, delegation protocols).
-5. Keep instructions focused and actionable: hard rules, deliverable format, scope boundaries.
+1. Read `docs/prompt-style.md` first; it carries the rules and the sources behind them.
+2. Skill descriptions keep their concrete trigger phrases — they are what makes discovery work. Agent `tools` stay least-privilege. Names never change casually: skill directory names and agent file names are the discovery surface.
+3. Run the checklist in the style guide's "Checking a prompt change" section: the unittest suite, hazard greps, cross-reference resolution, terminology.
+4. Loop semantics changes go to `skills/mission/SKILL.md` and `skills/mission/references/control-loop.md` together, then get exercised with a full mission cycle.
 
-### Testing a Skill or Agent
+### Changing the recorder or a hook config
 
-1. Create a test mission or task that exercises the skill/agent.
-2. Verify the contract is written correctly if it's a skill.
-3. Check that delegation packets are well-formed.
-4. Verify agent reports follow the expected format and answer the objective.
-5. Read the ledgers to confirm memory updates are correct and traceability is intact.
-
-### Editing the Runtime Control Loop
-
-The control loop lives in `skills/mission/SKILL.md` (phases: Intake, Control Loop stages, Delegation, Verification, Default-to-Action, Communication, Stopping). Changes here are high-impact:
-
-- Update the loop stages in the SKILL.md body
-- Update supporting docs in `references/` if loop semantics change
-- Test with a full mission cycle to verify no infinite loops or stalls
-- Check that ledger updates still make sense with new loop stages
-
-### Common Scenarios
-
-**Adding a new specialist agent:**
-
-1. Write `agents/new-agent-name.md` with frontmatter and system prompt.
-2. In `skills/mission/references/delegation.md`, add an example work packet for this agent.
-3. In `skills/mission/SKILL.md`, reference the new agent in the Delegation section.
-4. Test by delegating to it in a real mission cycle.
-
-**Changing the stopping policy:**
-
-1. Edit `skills/mission/references/stopping.md` (continuation questions, stopping conditions).
-2. Update the loop in `skills/mission/SKILL.md` to call the new stopping logic.
-3. Test by running a mission to completion and verifying it stops at the right point.
-
-**Fixing memory corruption or ledger bugs:**
-
-1. Check `.mission/queue.md` and `.mission/state.md` format in `references/memory.md`.
-2. Update the ledger schema if format changes.
-3. Add a migration step in `mission-resume` skill if old `.mission/` directories need updating.
-
-**Changing the recorder or a hook config:**
-
-1. Edit `scripts/mr_record.py` or the config in `hooks/`. Field names are added to the candidate lists in `FIELD_ALIASES`, `TEXT_ALIASES`, `TOOL_RESULT_ALIASES`, or `TOOL_INPUT_ALIASES` — never swapped for a single "correct" name, because host schemas change between releases.
-2. Run `python3 -m unittest discover -s tests`.
-3. Run `python3 scripts/mr_doctor.py` and confirm the recorder still exits 0 and the hook configs still parse.
-4. If the record shape changed, update `skills/mission/references/telemetry.md`, which tells the fallback path what to write. The two must stay in sync or the two capture paths stop aggregating together.
+1. Field names are added to the candidate lists in `FIELD_ALIASES`, `TEXT_ALIASES`, `TOOL_RESULT_ALIASES`, or `TOOL_INPUT_ALIASES` — never swapped for a single "correct" name, because host schemas change between releases.
+2. Run the test suite, then `python3 scripts/mr_doctor.py`; the recorder must still exit 0 and the hook configs must still parse.
+3. If the record shape changed, update `skills/mission/references/telemetry.md` — it tells the fallback path what to write, and the two capture paths must aggregate together.
 
 ## Key Design Decisions
 
-- **Persistent control loop, not one-shot**: Stopping is explicit and evidence-based, not "first plausible answer".
-- **Durable memory on disk**: Survives session death, context compaction, multi-day gaps. Conversation is a cache; ledgers are the database.
-- **Orchestrator is single owner**: Subagent reports are validated and reconciled, not dumped. One accountable entity.
-- **Default to action**: Safe, reversible, evidence-supported choices are made; questions pass a strict gate and only after independent work is done.
-- **Verification as gate**: Unverified work doesn't count. Reproduce, root-cause, test, regression sweep, (if high-consequence) adversarial audit.
-- **Delegation by scope**: Each agent touches only its packet's files. Discovering out-of-scope findings is reported, not acted on silently.
-- **Telemetry never blocks**: The recorder exits 0 on every path, and every Claude Code recording hook but SessionEnd is `async`. A broken recorder loses data; it must not stall or block a session.
-- **Telemetry never leaves the machine**: Records are written to local disk and nothing else. Prompts are captured in full by default, so the off switch and the redaction switch are load-bearing, not optional extras.
+- **Persistent control loop, not one-shot**: stopping is explicit and evidence-based; every stop writes a decision naming its condition.
+- **The need governs, the words inform**: intake recovers the problem behind the request; normalization repairs a message's form, never its content; every non-obvious reading is logged and surfaced in the readback.
+- **Durable memory on disk**: the conversation is a cache; the `.mission/` ledgers are the database. Mid-mission directives always land in the ledger before triage.
+- **Orchestrator is single owner**: subagent reports are validated against a falsifiable bar (file:line spot-checks, rerunnable commands), then integrated or rejected.
+- **Default to action, questions as packets**: reversible evidence-backed choices are made and logged; a rare surviving question ships with options, a recommended default, and its silence behavior.
+- **Verification as gate, scaled to consequence**: tests for everything; sibling sweeps and independent review for consequential changes; adversarial audit at completion; three materially different attempts per problem, then stop-and-choose.
+- **Telemetry never blocks and never leaves the machine**: the recorder exits 0 on every path; records go to local disk only. Full-text capture by default makes the off and redaction switches load-bearing.
 
 ## Plugin Installation and Metadata
 
-- Plugin definition: `.claude-plugin/plugin.json` (name, version, description, author, license, keywords).
-- Marketplace definition: `.claude-plugin/marketplace.json` — the manifest a marketplace reads. It repeats the name, description, and author, and adds `source` (`"./"`, this repo), `category`, and `tags`. The two files duplicate the description, so a wording change has to be made in both.
-- Skills are registered by directory name under `skills/`, each holding a `SKILL.md`.
-- Agents are registered by `.md` file name in the `agents/` directory.
-- Hooks come from `hooks/hooks.json`, which Claude Code loads from the plugin without any user configuration.
-- Claude Code discovers and invokes skills and agents based on the frontmatter `name:` and trigger conditions in the description.
+- Plugin definition: `.claude-plugin/plugin.json` (name, version, description, author, license, keywords, repository).
+- Marketplace definition: `.claude-plugin/marketplace.json` — repeats the plugin description and adds `source: "./"`, `category`, `tags`. The two files duplicate the description on purpose; change it in both. Version lives only in plugin.json.
+- Skill `metadata.version` fields track the plugin version; bump them together.
+- Skills register by directory name under `skills/`; agents by file name under `agents/`; hooks load from `hooks/hooks.json` with no user configuration.
 
 ## Dependencies
 
-No npm packages, no build step, no external APIs, no network calls. The plugin is markdown, JSON manifests, and Python 3 scripts.
-
-The one runtime requirement is Python 3 for the telemetry scripts in `scripts/`, which import only the standard library — no pip install. Python 3 was chosen over bash plus jq because jq is absent by default on macOS and on minimal Linux images, and a missing jq would make the recorder silently record nothing — the worst failure mode for a telemetry component. Adding a third-party dependency to these scripts is a contract change, not a refactor.
+No npm packages, no build step, no external APIs, no network calls. The plugin is markdown, JSON manifests, and Python 3 scripts importing only the standard library. Python 3 was chosen over bash+jq because jq is absent by default on macOS and minimal Linux images, and a missing jq would make the recorder silently record nothing — the worst failure mode for telemetry. Adding a third-party dependency to these scripts is a contract change, not a refactor.

@@ -1,5 +1,15 @@
 # Telemetry: Recording What the Runtime Did
 
+## Contents
+
+- [Two capture paths](#two-capture-paths)
+- [Detecting which path is live](#detecting-which-path-is-live)
+- [The fallback record](#the-fallback-record)
+- [Reading the data](#reading-the-data)
+- [Scoring a run](#scoring-a-run)
+- [Privacy](#privacy)
+- [Rules the recorder must keep](#rules-the-recorder-must-keep)
+
 The runtime is expensive to run and hard to judge. Telemetry exists to answer
 one question with data instead of impression: **what did a mission cost, and
 what did it produce?**

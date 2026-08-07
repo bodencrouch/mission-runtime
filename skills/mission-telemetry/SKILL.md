@@ -9,7 +9,7 @@ description: >
   recorded run data, checks that recording is actually working, and changes the
   telemetry configuration.
 metadata:
-  version: "0.1.0"
+  version: "0.3.0"
 ---
 
 # Mission Telemetry
@@ -19,8 +19,8 @@ Full design in `${CLAUDE_PLUGIN_ROOT}/skills/mission/references/telemetry.md`.
 
 ## 1. Establish what is actually being recorded
 
-Never answer from assumption — an empty store and a broken recorder look the
-same to the user. Run:
+Answer from the doctor, never from assumption — an empty store and a broken
+recorder look the same to the user. Run:
 
 ```
 python3 ${CLAUDE_PLUGIN_ROOT}/scripts/mr_doctor.py
@@ -70,9 +70,10 @@ the doctor and show the result rather than asserting it took effect.
 
 Deleting records is irreversible. Name the exact path and wait for confirmation.
 
-## 5. What not to do
+## 5. Boundaries
 
-Do not write telemetry records by hand while hooks are recording — duplicates
-corrupt every count. Do not read `~/.missionruntime/` to reconstruct past
-conversations for the user; it exists to measure the runtime, not to serve as a
-searchable history. Do not send any of it anywhere.
+Three rules hold because the data is only trustworthy while they do. Never
+write telemetry records by hand while hooks are recording — duplicates corrupt
+every count. Never read `~/.missionruntime/` to reconstruct past conversations
+for the user — it exists to measure the runtime, not to serve as a searchable
+history. Never send any of it anywhere — the store is local by contract.
