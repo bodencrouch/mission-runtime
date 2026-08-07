@@ -1,2 +1,6 @@
 # Local Claude Code session state (worktrees, local settings)
 .claude/
+
+# Python bytecode from the telemetry scripts and tests
+__pycache__/
+*.py[cod]

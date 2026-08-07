@@ -65,6 +65,26 @@ version control via `.git/info/exclude` (never edit the project's .gitignore
 for this). This is what makes the mission survive context compaction, session
 death, and multi-day gaps.
 
+## Run telemetry
+
+Every mission leaves a machine-readable record in `~/.missionruntime/` so the
+runtime's cost and value can be measured rather than guessed. Read
+`references/telemetry.md` for the full design.
+
+On most hosts this is automatic: plugin hooks call the recorder and the runtime
+does nothing. Do not write records by hand while hooks are live — duplicates
+corrupt every count. Where hooks are unavailable (`disableAllHooks`, enterprise
+policy, `--bare`, an unsupported host), fall back to writing records yourself
+per that reference, and record the degradation in `.mission/state.md` so an
+empty store is never mistaken for a cheap run.
+
+Check which path is live once, at mission start:
+`python3 ${CLAUDE_PLUGIN_ROOT}/scripts/mr_doctor.py`.
+
+Telemetry is local-only and never leaves the machine. If the user asks to stop
+recording, honor it immediately — `MISSIONRUNTIME_TELEMETRY=off` — and do not
+substitute the fallback path for the capture they just declined.
+
 ## The control loop
 
 Run the persistent loop defined in `references/control-loop.md`:

@@ -97,6 +97,14 @@ One file per delegation (`notes/<seq>-<agent>-<slug>.md`). The orchestrator
 distills these into the ledgers; they are retrievable raw material, never
 user-facing output.
 
+## Not in `.mission/`: run telemetry
+
+`.mission/` is per-project and describes *this* mission. Run telemetry —
+timings, subagent spawns, tool counts, outcomes — goes to `~/.missionruntime/`
+instead, because comparing runs across projects and hosts is the whole point of
+collecting it. See `references/telemetry.md`. Keep the two separate: ledgers are
+for reasoning, telemetry is for measurement.
+
 ## Resumption protocol
 
 On `mission-resume` (or any cold start where `.mission/` exists): read

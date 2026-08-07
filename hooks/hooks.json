@@ -1,0 +1,113 @@
+{
+  "description": "mission-runtime telemetry: passive run recorder. Writes NDJSON to ~/.missionruntime/ and never blocks a session.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/mr_record.py\" --event SessionStart --host claude",
+            "async": true,
+            "suppressOutput": true
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/mr_record.py\" --event UserPromptSubmit --host claude",
+            "async": true,
+            "suppressOutput": true
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Agent|Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/mr_record.py\" --event SubagentSpawn --host claude",
+            "async": true,
+            "suppressOutput": true
+          }
+        ]
+      },
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/mr_record.py\" --event SkillInvoke --host claude",
+            "async": true,
+            "suppressOutput": true
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/mr_record.py\" --event SubagentStart --host claude",
+            "async": true,
+            "suppressOutput": true
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/mr_record.py\" --event SubagentStop --host claude",
+            "async": true,
+            "suppressOutput": true
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/mr_record.py\" --event PostToolUse --host claude",
+            "async": true,
+            "suppressOutput": true
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/mr_record.py\" --event Stop --host claude",
+            "async": true,
+            "suppressOutput": true
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/mr_record.py\" --event SessionEnd --host claude",
+            "timeout": 5,
+            "suppressOutput": true
+          }
+        ]
+      }
+    ]
+  }
+}

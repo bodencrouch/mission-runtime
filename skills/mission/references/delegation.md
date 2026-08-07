@@ -34,12 +34,27 @@ CONSTRAINTS: conventions, quality bar, do-not-touch list.
 AUTHORITY: read-only | may edit <files> | may run <commands>.
 EVIDENCE STANDARD: what makes a claim acceptable (repro steps, line refs,
   measurements — not opinions).
-DELIVERABLE: report to write at .mission/notes/<seq>-<agent>-<slug>.md with
-  sections: Findings (each with evidence + confidence), Proposed actions,
-  Uncertainties, Artifacts touched. Final message = a terse summary of that
-  report, as data for the orchestrator — not prose for the user.
+DELIVERABLE: sections required in the report — Findings (each with evidence +
+  confidence), Proposed actions, Uncertainties, Artifacts touched. Where the
+  report goes depends on the agent's authority (see below). Final message =
+  data for the orchestrator, not prose for the user.
 BUDGET: rough effort bound.
 ```
+
+**Who writes the note file.** Read-only agents (repo-cartographer,
+research-analyst, security-reviewer, code-quality-reviewer,
+regression-investigator, adversarial-critic) have no write tools by design —
+that restriction is what makes them safe to run anywhere. They return the full
+report as their final message and the **orchestrator** saves it to
+`.mission/notes/<seq>-<agent>-<slug>.md`. Write-capable agents
+(implementation-engineer, test-engineer, docs-writer) save their own note file
+and return a terse summary. Never instruct a read-only agent to write a file;
+it will either refuse or waste a cycle discovering it cannot.
+
+**Telemetry.** Delegations are recorded automatically by the host hooks
+described in `references/telemetry.md` — the agent type and the work packet are
+captured at spawn, the outcome at return. Do not ask agents to log their own
+telemetry, and do not hand-write delegation records while hooks are live.
 
 ## Dispatch rules
 

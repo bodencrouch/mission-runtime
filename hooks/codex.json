@@ -1,0 +1,26 @@
+{
+  "_comment": "mission-runtime telemetry for OpenAI Codex CLI. Install with scripts/mr_install_hooks.py --host codex. Target: ~/.codex/hooks.json or <project>/.codex/hooks.json. Project-scoped Codex layers load only for trusted projects, and command hooks need one-time approval via /hooks.",
+  "hooks": {
+    "SessionStart": [
+      { "hooks": [ { "type": "command", "command": "__MR_CMD__ --event SessionStart --host codex" } ] }
+    ],
+    "SessionEnd": [
+      { "hooks": [ { "type": "command", "command": "__MR_CMD__ --event SessionEnd --host codex" } ] }
+    ],
+    "UserPromptSubmit": [
+      { "hooks": [ { "type": "command", "command": "__MR_CMD__ --event UserPromptSubmit --host codex" } ] }
+    ],
+    "SubagentStart": [
+      { "hooks": [ { "type": "command", "command": "__MR_CMD__ --event SubagentStart --host codex" } ] }
+    ],
+    "SubagentStop": [
+      { "hooks": [ { "type": "command", "command": "__MR_CMD__ --event SubagentStop --host codex" } ] }
+    ],
+    "PostToolUse": [
+      { "hooks": [ { "type": "command", "command": "__MR_CMD__ --event PostToolUse --host codex" } ] }
+    ],
+    "Stop": [
+      { "hooks": [ { "type": "command", "command": "__MR_CMD__ --event Stop --host codex" } ] }
+    ]
+  }
+}
