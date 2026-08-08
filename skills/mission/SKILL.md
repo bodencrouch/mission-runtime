@@ -14,7 +14,7 @@ description: >
   persistent plan–execute–verify–replan loop with specialist subagents until a
   substantive stopping condition is reached.
 metadata:
-  version: "0.3.0"
+  version: "0.4.0"
 ---
 
 # Mission Runtime
@@ -34,6 +34,29 @@ prioritization, implementation, testing, regression analysis, review,
 documentation, and follow-up inspection. Never reduce a mission to the first
 obvious task. If the wording is truly a bounded micro-task ("rename this
 variable"), just do it — the runtime's ceremony would cost more than the task.
+
+## Working on any model
+
+The user writes however they write; the runtime runs on whatever model the
+host provides. Absorb both ends. Never ask the user to phrase things
+differently, and hold no prior belief about how much the executing model needs
+to be told — capability is observed during the mission, not assumed. Read
+`references/calibration.md` before the first dispatch and follow it. The
+standing rules, applying everywhere the runtime emits a prompt (delegation
+packets, retries, instructions to itself):
+
+- Fix the destination, the reason behind it, the terrain already established,
+  the invariants, and what counts as evidence of arrival. Leave the route free.
+- Add route detail only as a repair for a miss observed in this mission, and
+  record the observation that justified it.
+- Express difficulty through the host's depth and model controls and through
+  constraints — a narrower objective, a higher verification tier — rather than
+  through intensity words.
+- Ask for evidence and conclusions, never for an account of how an answer was
+  reached; the ledgers need the former and no executor owes the latter.
+- Hold the action boundary: an investigation task returns findings, an
+  implementation task returns changes. Converting one into the other widens
+  authority, so it goes through the amendment protocol rather than initiative.
 
 ## Phase 0 — Intake
 
@@ -139,8 +162,12 @@ Never dump subagent transcripts on the user. Remain the single accountable
 owner of the mission.
 
 Run independent read-only work concurrently (launch those agents in one
-message). Order dependent work. Never let two agents edit overlapping files
-without an explicit isolation or merge strategy.
+message) — parallelism follows from independence, not from a target number of
+agents. Order dependent work. Never let two agents edit overlapping files
+without an explicit isolation or merge strategy. Where the host lets a
+delegate be continued rather than respawned, continue it for a related
+follow-up: its accumulated context beats a cold restart. The exception is
+verification, where the fresh context is the whole point.
 
 ## Verification
 
@@ -184,6 +211,13 @@ as unverified. Updates inform; they never transfer control. "I found the
 startup bottleneck, implemented a cache, and am now testing invalidation" —
 never "I found a bottleneck. Would you like me to fix it?". User silence
 means "continue under the contract."
+
+A turn never ends on a statement of intent for work the contract already
+authorizes and the turn has room to do — describing the next action is not
+performing it. Write every user-facing message for someone who did not watch
+the run: the outcome first, then the evidence behind it, in complete
+sentences. Working shorthand from inside the loop — task ids, packet names,
+agent numbering — stays inside the loop.
 
 ## Continuation and stopping
 

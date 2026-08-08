@@ -41,19 +41,24 @@ role-defining work packet. Multiple instances of the same role are fine
 
 ## Work packet (every delegation includes all of this)
 
-Order the packet context-first: binding constraints, then evidence and state,
-then the ask — instructions at the end of a long prompt are followed best.
-Keep the packet lean: point into `.mission/notes/` for long material instead
-of inlining it.
+The packet is the runtime's own product, never the user's message forwarded.
+Order it context-first: binding constraints, then evidence and state, then the
+ask — instructions at the end of a long prompt are followed best. Keep it
+lean: point into `.mission/notes/` for long material instead of inlining it.
 
 ```markdown
 OBJECTIVE: one sentence, outcome-shaped.
+WHY: the governing principle behind the objective, in one line, so the cases
+  this packet failed to enumerate still resolve the right way.
 MISSION CONTEXT: the mission line + only the state the agent needs (pointers
-  over pastes).
-SCOPE: files/systems in bounds; everything else out of bounds. No unrequested
-  refactors, features, or cleanups riding along.
+  over pastes) + do-not-repeat notes from attempts.md where they apply.
+SCOPE: files/systems in bounds; everything else out of bounds. No changes the
+  objective does not require: no drive-by refactors, no unrequested cleanup,
+  no abstractions for hypothetical future needs.
 CONSTRAINTS: conventions, quality bar, do-not-touch list.
-AUTHORITY: read-only | may edit <files> | may run <commands>.
+AUTHORITY: read-only | may edit <files> | may run <commands>. Reversible
+  actions inside that boundary proceed without asking; anything outside it is
+  a finding to report, not a decision to make.
 DELIVERABLE TYPE: assessment | change | both — every packet says which.
 EVIDENCE STANDARD: what makes a claim acceptable (repro steps, line refs,
   measurements — not opinions). For long-running packets: audit each progress
@@ -62,8 +67,24 @@ DELIVERABLE: sections required in the report — Findings (each with evidence +
   confidence), Proposed actions, Uncertainties, Artifacts touched. Where the
   report goes depends on the agent's authority (see below). Final message =
   data for the orchestrator, not prose for the user.
-BUDGET: rough effort bound.
+BUDGET: rough effort bound. Depth is set at dispatch (calibration reference),
+  not requested in prose.
 ```
+
+**Route freedom.** The packet states what must be true when the agent returns,
+not the sequence of commands that gets there. Step-level instruction enters a
+packet only as a repair for an observed miss, scoped to the role or task class
+that produced it — the ratchet in the calibration reference. Everything the
+runtime declines to put in a packet is listed there too: reasoning narration,
+intensity words, enumerated permission lists, fixed agent counts, and any
+figure describing how much context remains.
+
+**Discovery versus reporting.** A packet that limits what an agent reports
+also limits what it looks for; an obedient agent narrows its search to match
+the threshold. State the two separately: search the whole scope, then report
+ranked by severity, nits labeled as nits. A real correctness defect is never
+dropped for being merely moderate, and a thin report is never padded to look
+thorough.
 
 **Who writes the note file.** The six inspection and review agents
 (repo-cartographer, research-analyst, security-reviewer,
@@ -83,12 +104,18 @@ telemetry, and do not hand-write delegation records while hooks are live.
 ## Dispatch rules
 
 - Launch independent read-only agents concurrently, in a single message.
+  Concurrency follows from independence; a target number of agents is not a
+  goal, and neither is keeping the roster busy.
 - Never launch two write-capable agents whose scopes overlap. For parallel
   edits, use isolated worktrees/branches with a designated merge step, or
   serialize.
 - Record every dispatch in queue.md (task → owner → files owned), and check
   that ownership record before launching any writer.
 - Prefer one writer + read-only reviewers over co-writers.
+- Where the host supports continuing a delegate rather than respawning it,
+  continue it for related follow-up work — accumulated context is worth more
+  than a cold restart. Verification is the standing exception: a review is
+  dispatched fresh, because independence from the work is what it is for.
 
 ## Integration protocol (on every agent return)
 
@@ -113,4 +140,10 @@ Do not: delegate the whole mission to one giant subagent; spawn agents to
 appear busy; let a subagent's question bubble up to the user (answer it from
 the contract and ledgers, or make the call and log it); treat agent output as
 accepted project state before validation; give an implementation agent an
-open-ended "improve things" packet.
+open-ended "improve things" packet; forward the user's message as the packet
+(it is evidence about the need, and the packet is what the runtime makes of
+it); prescribe a tool-by-tool route the agent can derive from the objective.
+
+A returned report that misses in one of these ways is a packet defect before
+it is an agent defect. Apply the minimal repair from the calibration
+reference's signal table, record the observation behind it, and re-dispatch.
