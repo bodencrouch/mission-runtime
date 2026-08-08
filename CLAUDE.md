@@ -20,7 +20,8 @@ Almost everything in this repo is instructions: skills, reference docs, agent de
 
 Four skills, each `skills/<name>/SKILL.md` with frontmatter `name`, `description` (the trigger surface — concrete quoted phrases, third person), and `metadata.version` (kept equal to the plugin version):
 
-- **mission** — the orchestrator: intake (need-behind-the-ask diagnosis, message normalization, contract, readback), the control loop, delegation, verification, the question gate, communication rules, stopping. Its eight reference docs live in `skills/mission/references/` and are each linked once from the SKILL.md body:
+- **mission** — the orchestrator: intake (need-behind-the-ask diagnosis, message normalization, contract, readback), the control loop, delegation, verification, the question gate, communication rules, stopping. Its nine reference docs live in `skills/mission/references/` and are each linked once from the SKILL.md body:
+  - `calibration.md` — the model-agnostic emission doctrine: what every emitted prompt fixes (destination, reason, terrain, laws, evidence) and what it leaves free (the route), the constructs the runtime never emits, the scaffolding ratchet, the observed-signal → packet-repair table, depth as dispatch configuration, the host capability probe.
   - `intent-contract.md` — need diagnosis, message-normalization repair table, evidence hierarchy, confidence tiers, contract template, readback, the canonical question gate (question packets with silence-defaults).
   - `control-loop.md` — loop stages with consequence-proportional ceremony, prioritization, parallelism and conflict control, stall detection, context management, budgets.
   - `amendment.md` — mid-mission directives: ledger-first landing, four-verdict triage, blast-radius sweep, effect boundary.
@@ -78,7 +79,7 @@ python3 -m unittest discover -s tests
 ```
 
 - `tests/test_telemetry.py` covers the properties the telemetry subsystem may not lose: recorder exits 0 on hostile input, unwritable store, path-traversal session ids; host dialects normalize to the same fields; config/env switches take effect and env wins; the report survives corrupt lines and empty stores; hook configs parse, reference the recorder, and stay async; the installer renders valid JSON and backs up what it replaces. Tests point `MISSIONRUNTIME_HOME` at a temp directory.
-- `tests/test_runtime_conformance.py` mechanically enforces the style guide on the markdown runtime: skill/agent frontmatter shape, description length and person, `metadata.version` == plugin version, SKILL.md line ceiling, every reference linked from the mission SKILL.md exactly once, agent `tools` declared least-privilege (read-only set excludes write tools; no `Agent` anywhere), prose descriptions, valid colors, delegation roster completeness, the four hazard-pattern greps, and manifest description/version parity.
+- `tests/test_runtime_conformance.py` mechanically enforces the style guide on the markdown runtime: skill/agent frontmatter shape, description length and person, `metadata.version` == plugin version, SKILL.md line ceiling, every reference linked from the mission SKILL.md exactly once, agent `tools` declared least-privilege (read-only set excludes write tools; no `Agent` anywhere), prose descriptions, valid colors, delegation roster completeness, the five hazard-pattern greps, and manifest description/version parity. The fifth hazard is model coupling: no skill, agent, or reference may name a model or model family, because a capability assumption written into a surface can neither be observed nor retired. Sourced model-specific findings go in `docs/prompt-style.md`.
 
 ## Working With This Codebase
 
@@ -97,6 +98,7 @@ python3 -m unittest discover -s tests
 
 ## Key Design Decisions
 
+- **Model-agnostic by construction**: the user phrases things however they like and the host supplies whatever model it supplies; the runtime absorbs both. Emitted prompts fix the outcome, its governing reason, the established terrain, the invariants, and the evidence of arrival — and leave the route to the executor. Scaffolding is added only as a recorded repair for a miss observed in the running mission, and retired when the returns stop showing one, so the runtime neither under-specifies a weak executor nor over-constrains a strong one.
 - **Persistent control loop, not one-shot**: stopping is explicit and evidence-based; every stop writes a decision naming its condition.
 - **The need governs, the words inform**: intake recovers the problem behind the request; normalization repairs a message's form, never its content; every non-obvious reading is logged and surfaced in the readback.
 - **Durable memory on disk**: the conversation is a cache; the `.mission/` ledgers are the database. Mid-mission directives always land in the ledger before triage.

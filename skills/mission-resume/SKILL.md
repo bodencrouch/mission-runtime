@@ -10,7 +10,7 @@ description: >
   It reloads the durable mission state and re-enters the control loop without
   asking the user to restate anything.
 metadata:
-  version: "0.3.0"
+  version: "0.4.0"
 ---
 
 # Resume a Mission

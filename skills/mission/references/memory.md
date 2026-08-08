@@ -46,6 +46,11 @@ Task, owner (self/agent), current hypothesis, files in play.
 ## Assumptions in force (top items; full ledger in assumptions.md)
 ## Blockers (smallest dependent task each, and what was finished around it)
 ## Risks
+## Calibration
+Host capabilities probed and any degradation in force; packet repairs
+currently applied, each with the observation that justified it; depth
+settings that produced acceptable results. A resumed session inherits this
+instead of paying to rediscover it (calibration reference).
 ## Reported-through (timestamp of the last user-facing update, so the next
    update states deltas from a recorded anchor, not from memory)
 ## Next action (exact, executable — "run X", "delegate Y to test-engineer")

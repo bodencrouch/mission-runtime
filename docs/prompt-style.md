@@ -12,6 +12,7 @@ rather than sourced guidance say so.
 - [Framing](#framing)
 - [Altitude](#altitude)
 - [Register](#register)
+- [Model-agnostic emission](#model-agnostic-emission)
 - [Structure](#structure)
 - [Examples](#examples)
 - [Skills](#skills)
@@ -87,6 +88,26 @@ Never write anti-laziness prompting ("if in doubt, do X", "proactively",
 Never instruct a model to echo, transcribe, or explain its internal
 reasoning; ask for evidence and conclusions instead. Reasoning-echo
 instructions can trigger refusals on current models. [F5]
+
+## Model-agnostic emission
+
+Two audiences read what this repository produces: the model running the
+runtime, and the models the runtime dispatches. Neither is known when the
+files are written, so no runtime surface names a model or model family,
+asserts what "current models" need, or tunes its scaffolding to a capability
+level. A capability claim frozen into a prompt file cannot be observed, cannot
+be retired, and is wrong the moment the host changes its default. Sourced
+findings about specific model behavior belong here, in this guide, as a rule
+with a tag; the runtime surfaces carry only the behavior. (House rule; the
+conformance suite greps skills, agents, and references for model names.)
+
+The corollary for authors: name the failure any new scaffolding repairs.
+Scaffolding whose failure cannot be named is scaffolding the next model will
+not need, and prescription that a model has outgrown lowers output quality
+rather than protecting it. At run time the same principle is a mechanism —
+the ratchet in `skills/mission/references/calibration.md` adds packet detail
+only against an observed miss and retires it when the returns stop showing
+one. [F5][CE]
 
 ## Structure
 
@@ -203,9 +224,10 @@ change lands in `.claude-plugin/plugin.json` and
    `test_runtime_conformance.py` mechanically enforces most rules in this
    guide (frontmatter shape, tool boundaries, link counts, hazard greps).
 2. `claude plugin validate . --strict` where the CLI is available. [CCP]
-3. Grep the changed files for the four hazards: reasoning-echo phrasing,
-   emphasis capitals, anti-laziness prompts, "think hard" rituals. All four
-   counts were zero at baseline (2026-08-07) and stay zero.
+3. Grep the changed files for the five hazards: reasoning-echo phrasing,
+   emphasis capitals, anti-laziness prompts, "think hard" rituals, and model
+   or model-family names in a runtime surface. All five counts were zero at
+   baseline (2026-08-07) and stay zero.
 4. Cross-references resolve; the terminology table is respected; every
    skill description keeps or strengthens its concrete trigger phrases.
 5. For consequential rewrites: a fresh-context adversarial review, told to

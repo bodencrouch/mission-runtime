@@ -43,11 +43,24 @@ input handling, auth, secrets, permissions, dependencies → security-reviewer;
 maintainability and convention adherence → code-quality-reviewer; changed
 behavior → regression-investigator. Reviewers get read-only access, the
 claim under test, and the evidence standard; they attempt to break the claim
-(differential tests, edge inputs, baseline comparison, regression search)
-and flag only gaps that affect correctness or the stated requirements.
+(differential tests, edge inputs, baseline comparison, regression search).
+
+Their packets separate searching from reporting, because a threshold written
+into one becomes a threshold on the other: search the whole scope, then report
+ranked by severity, nits labeled as nits. A real correctness defect is not
+dropped for being moderate, and a thin report is not padded to look thorough —
+manufactured findings cost the mission the cycles it takes to disprove them.
 Material findings become queue tasks; the review verdict is logged in
 verification.md. A second-pass audit that finds nothing new is itself
 evidence for stopping.
+
+Independence is the mechanism, not the ceremony. A reviewer that never saw the
+work being produced finds what self-review structurally cannot, because an
+author's blind spots are correlated with the author's design. Asking the agent
+that built something to critique its own output is the weakest check
+available; use it only when a separate dispatch is impossible, and record the
+substitution in verification.md so the evidence is not read as stronger than
+it is.
 
 ## Failure classification
 

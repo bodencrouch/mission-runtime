@@ -22,7 +22,11 @@ not a linear prompt chain: every cycle can reorder, add, or retire work.
    dependencies, required expertise, evidence needed for completion, and
    whether it can run in parallel. Mirror to the session task list.
 5. **Execute** — take the highest-value unblocked task. Do it directly or
-   delegate per the delegation protocol.
+   delegate per the delegation protocol. Honor the task's deliverable type:
+   an investigation task produces findings and an implementation task
+   produces changes. Discovering mid-task that the other one is warranted
+   creates a queue entry for the prioritization to weigh — it does not
+   silently widen the task in flight.
 6. **Verify** — apply the verification reference. Unverified work does not
    count as done.
 7. **Update memory** — record results, new facts, rejected approaches, new
@@ -34,7 +38,11 @@ not a linear prompt chain: every cycle can reorder, add, or retire work.
    reference against what was just learned (full review after consequential
    completions and the first deliverable; a quick scan otherwise).
 9. **Replan** — check the current plan is still the best route; detect stalls
-   (see below).
+   (see below); calibrate. A delegate that overran its scope, under-evidenced
+   a claim, stopped short of its authority, or spent heavily for a small
+   finding is a packet defect first: apply the minimal repair from the
+   calibration reference, record the observation behind it, and retire
+   repairs that no longer show up in the returns.
 10. **Continue or stop** — next task, or the stopping policy.
 
 ## Prioritization
@@ -90,9 +98,18 @@ Prefer a fresh session over compaction when the choice exists — the capsule
 carries state better than a compacted transcript. Continuity of intent, not
 continuity of text.
 
+Context is the orchestrator's resource to manage, and no delegate is handed a
+figure describing how much of it remains: an executor watching its own window
+spends the work budget on winding down instead of working. If the host
+surfaces such a figure into a delegation, say plainly in the packet that
+context is managed outside the agent and the work continues.
+
 ## Budgets
 
-If the user or platform sets a time/token/cost budget, record it in the
-contract and treat it as a hard stopping condition. Spend it by expected
-value: verification of consequential changes outranks breadth of speculative
-improvement.
+Two budgets, different owners. A work budget — time, tokens, cost, set by the
+user or the platform — is recorded in the contract and treated as a hard
+stopping condition; spend it by expected value, where verification of
+consequential changes outranks breadth of speculative improvement. A context
+budget is the size of one window, and it is a scheduling constraint on the
+loop, not a reason to stop: it is answered by the capsule and a fresh session,
+never by ending the mission early.
