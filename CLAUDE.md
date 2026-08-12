@@ -97,6 +97,7 @@ python3 -m unittest discover -s tests
 
 ## Key Design Decisions
 
+- **Model-agnostic surfaces**: the runtime must produce good results on whatever model and host the user has, from whatever phrasing the user writes. Prompt surfaces specify outcomes, invariants, authority, and evidence — never a fixed route, and never a particular model's compensations as standing rules; host capabilities are referenced conditionally, with the `.mission/` ledgers as the universal fallback. The rules live in `docs/prompt-style.md` ("Model portability").
 - **Persistent control loop, not one-shot**: stopping is explicit and evidence-based; every stop writes a decision naming its condition.
 - **The need governs, the words inform**: intake recovers the problem behind the request; normalization repairs a message's form, never its content; every non-obvious reading is logged and surfaced in the readback.
 - **Durable memory on disk**: the conversation is a cache; the `.mission/` ledgers are the database. Mid-mission directives always land in the ledger before triage.

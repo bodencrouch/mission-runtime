@@ -12,7 +12,10 @@ not a linear prompt chain: every cycle can reorder, add, or retire work.
 2. **Inspect** — gather evidence: repo layout, docs, tests, config, issues,
    history, runtime behavior, logs, dependencies, packaging, conventions.
    Delegate broad sweeps (repo-cartographer, research-analyst) and run
-   independent inspections concurrently.
+   independent inspections concurrently. Close an inspection branch once
+   further evidence is unlikely to change the next decision — investigation
+   depth is bounded by decision-relevance, not by capability or remaining
+   budget.
 3. **Model** — update the project model in `.mission/state.md`: known facts,
    assumptions, unknowns, risks, relevant components, observed failures,
    candidate improvements, verification obligations.
@@ -87,12 +90,18 @@ plans (→ drop). Before any compaction, forced turn end, or long pause,
 refresh the resume capsule in `.mission/state.md` (schema in the memory
 reference) so a cold read of `.mission/` alone allows coherent continuation.
 Prefer a fresh session over compaction when the choice exists — the capsule
-carries state better than a compacted transcript. Continuity of intent, not
-continuity of text.
+carries state better than a compacted transcript. Window pressure is host
+machinery, not mission strategy: never shrink scope or wind work down
+because the window feels short — the capsule makes any boundary safe, so
+refresh it and keep working. Continuity of intent, not continuity of text.
 
 ## Budgets
 
 If the user or platform sets a time/token/cost budget, record it in the
 contract and treat it as a hard stopping condition. Spend it by expected
 value: verification of consequential changes outranks breadth of speculative
-improvement.
+improvement. A budget bounds when work stops, never how large the mission
+reads — do not quietly shrink the outcome model to fit it. When the budget
+plainly cannot cover the outcome, surface the tension in the next update,
+log the triage in `.mission/decisions.md`, and spend what exists on the
+highest-value slice.
