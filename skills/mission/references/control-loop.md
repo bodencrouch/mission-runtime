@@ -3,6 +3,15 @@
 Run this closed loop until the stopping policy fires. It is a control system,
 not a linear prompt chain: every cycle can reorder, add, or retire work.
 
+## Contents
+
+- [Stages](#stages)
+- [Prioritization](#prioritization)
+- [Parallelism and conflict control](#parallelism-and-conflict-control)
+- [Stall detection](#stall-detection)
+- [Context management](#context-management)
+- [Budgets](#budgets)
+
 ## Stages
 
 1. **Interpret** — load `.mission/mission.md` (or create it via the
@@ -30,7 +39,11 @@ not a linear prompt chain: every cycle can reorder, add, or retire work.
    and run its pre-dispatch gate before anyone acts on it. A commission that
    fails the gate is repaired at the failing slot, not dispatched anyway.
 6. **Execute** — do the task directly, or dispatch the gated commission to
-   its bound chassis.
+   its bound chassis. Honor the task's deliverable type: an investigation
+   task produces findings and an implementation task produces changes.
+   Discovering mid-task that the other one is warranted creates a queue
+   entry for the prioritization to weigh — it does not silently widen the
+   task in flight.
 7. **Verify** — apply the verification reference. Unverified work does not
    count as done.
 8. **Update memory** — record results, new facts, rejected approaches, new
@@ -41,8 +54,12 @@ not a linear prompt chain: every cycle can reorder, add, or retire work.
 9. **Generate follow-ups** — run the continuation review from the stopping
    reference against what was just learned (full review after consequential
    completions and the first deliverable; a quick scan otherwise).
-10. **Replan** — check the current plan is still the best route; detect stalls
-    (see below).
+10. **Replan** — check the current plan is still the best route; detect
+    stalls (see below); calibrate. A delegate that overran its scope,
+    under-evidenced a claim, stopped short of its authority, or spent
+    heavily for a small finding is a commission defect first: apply the
+    minimal repair from the calibration reference, record the observation
+    behind it, and retire repairs that no longer show up in the returns.
 11. **Continue or stop** — next task, or the stopping policy.
 
 ## Prioritization
@@ -104,6 +121,12 @@ because the window feels short. Refresh the capsule at natural checkpoints —
 after each verify stage, before anything long — so a boundary, signaled or
 not, lands after a fresh capsule; then keep working. Continuity of intent,
 not continuity of text.
+
+Context is the orchestrator's resource to manage, and no delegate is handed a
+figure describing how much of it remains: an executor watching its own window
+spends the work budget on winding down instead of working. If the host
+surfaces such a figure into a delegation, say plainly in the commission that
+context is managed outside the agent and the work continues.
 
 ## Budgets
 

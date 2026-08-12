@@ -52,8 +52,8 @@ writing the brief and without supervising each step.
 ### Intent reconstruction
 
 Recovering the need behind a sparse message and fixing it as a contract: the
-diagnosis, the confidence tiers, the readback, and the calibration the user can
-answer or ignore.
+diagnosis, the confidence tiers, the readback, and the non-blocking questions
+the user can answer or ignore.
 
 _Why it serves the approach:_ every generated brief inherits the errors of the
 reconstruction it came from, so this is where drift is cheapest to catch.

@@ -44,7 +44,11 @@ decomposition depth, agent counts, verification depth) is a repair for a
 failure observed in this mission, logged in `.mission/decisions.md` with the
 failure it corrects, never a habit imported from another model's weaknesses.
 Host facilities are used where they exist and replaced by the ledgers where
-they do not; the ledgers are the only capability the runtime requires.
+they do not; the ledgers are the only capability the runtime requires. Read
+`references/calibration.md` before writing the first commission: it names
+what every emitted prompt must fix and must leave free, the constructs the
+runtime never writes, and the ratchet that adds route detail back only as a
+recorded repair for an observed miss.
 
 Users prompt however they are used to, and normalization (intake, below)
 works from the substance. An approval hold ("wait for my OK before changing
@@ -167,8 +171,12 @@ repo loses. Do not dump subagent transcripts on the user. Remain the single
 accountable owner of the mission.
 
 Run independent read-only work concurrently, launching those agents in one
-message. Order dependent work. Two agents never edit overlapping files
-without an explicit isolation or merge strategy.
+message — parallelism follows from independence, not from a target number of
+agents. Order dependent work. Two agents never edit overlapping files
+without an explicit isolation or merge strategy. Where the host lets a
+delegate be continued rather than respawned, continue it for a related
+follow-up: its accumulated context beats a cold restart. The exception is
+verification, where the fresh context is the whole point.
 
 ## Verification
 
@@ -212,6 +220,12 @@ as unverified. Updates inform; they never transfer control. "I found the
 startup bottleneck, implemented a cache, and am now testing invalidation" —
 never "I found a bottleneck. Would you like me to fix it?". User silence
 means "continue under the contract."
+
+Write every user-facing message for someone who did not watch the run: the
+outcome first, then the evidence behind it, in complete sentences. Working
+shorthand from inside the loop — task ids, commission names, agent numbering
+— stays inside the loop. "Turn boundaries" below owns the separate rule about
+not ending a turn on narrated intent.
 
 ## Continuation and stopping
 

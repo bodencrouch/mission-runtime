@@ -48,6 +48,14 @@ HAZARDS = {
     "think-ritual": re.compile(
         r"think hard|think carefully|think step|think deeply|ultrathink", re.IGNORECASE
     ),
+    # The runtime must read the same on any executing model. A model name in
+    # a surface is a capability assumption that cannot be observed or retired;
+    # sourced model-specific findings live in docs/prompt-style.md instead.
+    "model-coupling": re.compile(
+        r"\b(opus|sonnet|haiku|fable|mythos|gemini|llama|mistral)\b"
+        r"|\bgpt-?\d|\bclaude-\d",
+        re.IGNORECASE,
+    ),
 }
 
 
@@ -305,8 +313,8 @@ class ContractDriftControls(unittest.TestCase):
         text = CONTRACT.read_text(encoding="utf-8")
         match = re.search(r"Nine framing mistakes disqualify", text)
         self.assertIsNotNone(
-            match, "the calibration section must name and count its framing "
-            "mistakes, not leave them as an unheaded list"
+            match, "the non-blocking questions section must name and count "
+            "its framing mistakes, not leave them as an unheaded list"
         )
         self.assertIn(
             "asking for a solution rather than a need", text,
@@ -326,11 +334,12 @@ class ContractDriftControls(unittest.TestCase):
             "measured one, or it will be mistaken for evidence it is not",
         )
 
-    def test_calibration_is_not_the_question_gate(self):
-        """Calibration is non-blocking and defaulted; the question gate blocks.
-        Merging them would either silence calibration or loosen the gate."""
+    def test_non_blocking_questions_is_not_the_question_gate(self):
+        """The non-blocking channel is defaulted and never waits; the question
+        gate blocks. Merging them would either silence the channel or loosen
+        the gate."""
         text = CONTRACT.read_text(encoding="utf-8")
-        self.assertIn("## Calibration", text)
+        self.assertIn("## Non-blocking questions", text)
         self.assertIn("## The question gate", text)
 
 
