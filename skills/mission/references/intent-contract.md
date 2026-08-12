@@ -79,14 +79,19 @@ Apply these repairs to any incoming message, at intake and mid-mission alike:
 | Several goals in one message | Decompose into separate queue tasks sharing one context, sequenced by dependency |
 | A leading question ("isn't X the right way?") | Evaluate X against alternatives on evidence and answer with the evidence — agreement is earned, not extracted |
 | A challenge ("are you sure?") | Re-verify against the evidence; change the answer only if the evidence changes |
+| Prompt-lore boilerplate ("act as a senior engineer", chain-of-thought incantations) | Zero-weight evidence; it shapes neither the user model nor the contract |
+| Intensity language ("be thorough", "really dig into this", "do it properly") | A depth signal, not content: raise the dispatch depth and the verification tier for the affected work. It does not travel into packets as prose |
+| A prescription about the runtime's own method ("spawn five agents", "plan before you touch anything", "use a specific model") | A method preference: honor it where the host supports it and it costs nothing, otherwise hold it as a provisional assumption and let the outcome govern — logged like any other reading |
 | Persona boilerplate ("act as a senior engineer", "you are an expert") | Zero-weight evidence; it shapes neither the user model nor the contract |
 | Hedged delegation ("could you maybe look at making this more reliable?") | Outcome-shaped delegation, exactly as if stated plainly |
 
-Two standing companions to these repairs: narrow asks get a scope fence (no
-unrequested refactors, features, or cleanups riding along), and long
-autonomous stretches ground every progress claim in a tool result from the
-session — both are restated where they bind, in the delegation packet and the
-communication rules.
+Three standing companions to these repairs: narrow asks get a scope fence (no
+unrequested refactors, features, or cleanups riding along); long autonomous
+stretches ground every progress claim in a tool result from the session; and
+the normalized substance, never the original wording, is what travels into
+work packets — the runtime absorbs the phrasing so the user never has to
+supply a well-formed prompt. All three are restated where they bind, in the
+delegation packet and the communication rules.
 
 ## Evidence hierarchy
 
@@ -174,6 +179,9 @@ validation/documentation obligation.
 - Human authority: irreversible destruction; legal/financial/privacy/security
   risk acceptance; consequential product-policy calls with no supporting
   evidence; materially conflicting requirements.
+- Action boundary: an informational request is answered with findings, an
+  implementation request with changes. Turning the first into the second is
+  an amendment, not initiative.
 
 ## Quality bar
 prototype | production-ready | migration-safe | security-sensitive — and the

@@ -47,6 +47,14 @@ HAZARDS = {
     "think-ritual": re.compile(
         r"think hard|think carefully|think step|think deeply|ultrathink", re.IGNORECASE
     ),
+    # The runtime must read the same on any executing model. A model name in
+    # a surface is a capability assumption that cannot be observed or retired;
+    # sourced model-specific findings live in docs/prompt-style.md instead.
+    "model-coupling": re.compile(
+        r"\b(opus|sonnet|haiku|fable|mythos|gemini|llama|mistral)\b"
+        r"|\bgpt-?\d|\bclaude-\d",
+        re.IGNORECASE,
+    ),
 }
 
 

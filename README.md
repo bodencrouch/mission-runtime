@@ -86,6 +86,14 @@ diagnosis, docs, and a final independent audit. Each gets a scoped
 assignment and reports evidence back. Reviewers cannot write files; writers
 get exact file boundaries.
 
+**Any model, any phrasing.** You never have to tune your wording, and you
+never have to know what the plugin is running on. Your message is turned into
+the plugin's own working brief, and each agent is told the goal, the reason
+behind it, what must not break, and what counts as proof — not a script of
+steps. If an agent comes back having missed something, the plugin adds the
+one instruction that would have prevented it, writes down why, and drops it
+again when it is no longer needed.
+
 **Verification.** Work does not count until it is proven: reproduce the
 problem first, fix the cause, add a test that fails without the fix, run the
 suite, and — for anything consequential — have an independent agent try to
