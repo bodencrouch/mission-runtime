@@ -25,21 +25,25 @@ not a linear prompt chain: every cycle can reorder, add, or retire work.
    dependencies, required expertise, evidence needed for completion, and
    whether it can run in parallel. Mirror to the session task list where
    the host provides one; queue.md stays authoritative.
-5. **Execute** — take the highest-value unblocked task. Do it directly or
-   delegate per the delegation protocol.
-6. **Verify** — apply the verification reference. Unverified work does not
+5. **Commission** — for the highest-value unblocked task the orchestrator
+   will not do directly, write the commission per the commission reference
+   and run its pre-dispatch gate before anyone acts on it. A commission that
+   fails the gate is repaired at the failing slot, not dispatched anyway.
+6. **Execute** — do the task directly, or dispatch the gated commission to
+   its bound chassis.
+7. **Verify** — apply the verification reference. Unverified work does not
    count as done.
-7. **Update memory** — record results, new facts, rejected approaches, new
+8. **Update memory** — record results, new facts, rejected approaches, new
    risks, new tasks, changed priorities in the ledgers. Ceremony scales with
    consequence: a low-consequence task earns a one-line Done entry; a
    consequential change earns the full verification record — uniform maximum
    bookkeeping starves the work it accounts for.
-8. **Generate follow-ups** — run the continuation review from the stopping
+9. **Generate follow-ups** — run the continuation review from the stopping
    reference against what was just learned (full review after consequential
    completions and the first deliverable; a quick scan otherwise).
-9. **Replan** — check the current plan is still the best route; detect stalls
-   (see below).
-10. **Continue or stop** — next task, or the stopping policy.
+10. **Replan** — check the current plan is still the best route; detect stalls
+    (see below).
+11. **Continue or stop** — next task, or the stopping policy.
 
 ## Prioritization
 
@@ -56,9 +60,12 @@ upstream findings.
 
 Run independent read-only work concurrently: architecture mapping, test-suite
 analysis, documentation research, dependency research, issue-history review,
-baseline collection — launch those agents in a single message. Keep dependent
-work ordered: implementation does not begin from three incompatible proposals
-unless the orchestrator has chosen one or set up isolated experiments.
+baseline collection — commission and launch those agents in a single message.
+Keep dependent work ordered: implementation does not begin from three
+incompatible proposals unless the orchestrator has chosen one or set up
+isolated experiments. How many commissions a task deserves, and the reason,
+is a dispatch rule in the delegation reference — read it before scaling a
+single task into several.
 
 Track in `.mission/queue.md`: file ownership, task dependencies, active agent
 assignments, overlapping change surfaces. Two agents never edit the same

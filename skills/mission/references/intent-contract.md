@@ -10,15 +10,15 @@
 - [Operating contract template](#operating-contract-template)
 - [The readback](#the-readback)
 - [The question gate](#the-question-gate)
+- [Calibration](#calibration)
 
 ## The need behind the ask
 
 A request usually names a mechanism; the mission serves the need. Before
-scoping anything, recover the situation that made the user write the message:
-what hurts, what they would recognize as "this is what I wanted", and what
-would make the complaint stop coming back. The stated request is high-grade
-evidence about that need — it is rarely the whole of it, and sometimes the
-best resolution of the need is not the stated mechanism at all.
+scoping anything, recover the situation that made the user write: what hurts,
+what they would recognize as "this is what I wanted", what would stop the
+complaint recurring. The stated request is high-grade evidence about that need,
+rarely the whole of it, sometimes not the best resolution of it.
 
 Work the diagnosis in three steps:
 
@@ -30,20 +30,19 @@ Work the diagnosis in three steps:
    score them against the evidence hierarchy below, and record the rejected
    readings in `.mission/decisions.md` — a logged alternative prevents
    anchoring on the first plausible reading.
-3. Choose the mission whose end state serves the need. When it diverges from
-   the stated mechanism, keep the user's mechanism as a provisional
-   assumption (below), serve the outcome, and say so in the readback — the
-   user corrects a visible divergence in one line.
+3. Choose the mission whose end state serves the need. Divergence from the
+   stated mechanism is normalized below and named in the readback, where the
+   user corrects it in one line.
 
 ## Sparse-intent reconstruction
 
 Treat a short user message as a compressed representation of a larger
 intention, never as a complete literal specification. "Make it fast" is not
 "optimize the first slow-looking function"; it is "take responsibility for the
-performance of the workloads this project actually serves." "Fix Linux
-startup" spans packaging, dependencies, service definitions, permissions,
-paths, sequencing, diagnostics, clean install, upgrade, uninstall, docs,
-tests, and recovery — not one shell script.
+performance of the workloads this project actually serves." "Fix Linux startup"
+spans packaging, dependencies, service definitions, permissions, paths,
+sequencing, diagnostics, install, upgrade, uninstall, docs, tests, and recovery
+— not one shell script.
 
 For every mission, infer: the outcome the user actually wants; whether they
 want exploration, implementation, stabilization, delivery, review, or
@@ -63,9 +62,9 @@ phrase things differently. Normalization repairs the *form* of a message,
 never its *content*: a message that contradicts the contract is a deliberate
 redirect, not a mistake, unless it is checkably false against the repo (it
 names a file that does not exist). Log every non-obvious reading in
-`.mission/decisions.md` as "read X as Y because Z", keep the user's original
-wording in the ledger, and let the readback surface the interpretation —
-silence ratifies it, one line overrides it.
+`.mission/decisions.md` as "read X as Y because Z" and let the readback surface
+the interpretation — silence ratifies it, one line overrides it. The user's own
+wording is preserved verbatim in the contract's Original request section.
 
 Apply these repairs to any incoming message, at intake and mid-mission alike:
 
@@ -82,11 +81,9 @@ Apply these repairs to any incoming message, at intake and mid-mission alike:
 | Persona boilerplate ("act as a senior engineer", "you are an expert") | Zero-weight evidence; it shapes neither the user model nor the contract |
 | Hedged delegation ("could you maybe look at making this more reliable?") | Outcome-shaped delegation, exactly as if stated plainly |
 
-Two standing companions to these repairs: narrow asks get a scope fence (no
-unrequested refactors, features, or cleanups riding along), and long
-autonomous stretches ground every progress claim in a tool result from the
-session — both are restated where they bind, in the delegation packet and the
-communication rules.
+Two repairs bind at dispatch rather than here — the scope fence on a narrow
+ask, and grounding progress claims in tool results — so the commission
+reference states them.
 
 ## Evidence hierarchy
 
@@ -130,34 +127,60 @@ it as such — never collapse tiers:
 - **Human decision** — reserved for genuine authority (see question gate);
   encountered, not pre-asked.
 
+The first four tiers are the contract's provenance tags — `[stated]`,
+`[entailed]`, `[repo: <file>]`, `[default]` — one per acceptance criterion and
+non-goal. An untagged constraint is removed rather than debated: a constraint
+nobody can source is a hallucinated requirement, the failure the agent-error
+taxonomy names sub-intention redundancy (task-irrelevant sub-goals). Checks on
+a tag run one way — a failed faithfulness or entailment check demotes its
+constraint to "needs a provenance tag or removal", a passed one certifies
+nothing, because factuality metrics are biased against heavy paraphrase over
+distant context (the shape of an expanded contract) and the best detectors
+reach about 84% balanced accuracy. Agreement across independently generated
+readings is not evidence either: models run 67–82% self-consistent even on
+genuinely under-specified input.
+
 ## Operating contract template
 
-Write this to `.mission/mission.md`. Keep it compact and durable — later
-context must not overwrite it.
+Write this to `.mission/mission.md`. Two budgets keep it durable against later
+context: at most seven acceptance criteria, and 120 lines for the whole file.
+Past the cap, a new criterion displaces an existing one instead of appending.
+Instruction-following degrades monotonically with instruction count (a
+regression on count alone predicts performance within about 10% error), and
+long context loses recall at every length increment, not only near the limit.
+Seven and 120 are starting values set by analogy, unmeasured for this runtime,
+open to recalibration from its own data. The Original request slot is the one
+section no replan rewrites: committing to an early reading with no path back to
+the source is the dominant long-conversation failure — a 39% average drop
+across 200,000+ conversations, nearly all of it added unreliability rather than
+lost capability.
 
 ```markdown
 # Operating Contract
+
+## Original request
+The user's message, verbatim. No replan rewrites this section.
 
 ## Mission
 One or two sentences describing the desired end state. Stable across replans.
 
 ## Outcome model
-What success looks like from the user's perspective — observable acceptance
-criteria, not activities. Each criterion states how it will be checked; a
-criterion with no check yet spawns a queue task to build one. (e.g., "a clean
-environment can follow the docs and the service starts; failures produce
-actionable diagnostics; CI validates the supported matrix; an independent
-audit finds no material reliability defect.")
+Observable acceptance criteria, not activities — at most seven, each with one
+provenance tag and a stated check. A criterion with no check yet spawns a queue
+task to build one. (e.g., "a clean environment follows the docs and the service
+starts [stated]; failures produce actionable diagnostics [entailed]; CI
+validates the supported matrix [repo: .github/workflows/ci.yml]; no material
+reliability defect survives an independent audit [default]")
 
 ## Scope
 Areas reasonably included (code, tests, packaging, config, docs, CI, logs...).
 
 ## Non-goals / drift boundaries
-What does NOT follow from this mission: no unrelated redesigns, no language
-migrations, no wholesale rewrites without evidence, no speculative features,
-no novelty dependency swaps, no work justified only by remaining budget.
-Every task must trace to the mission, a discovered defect, a verified risk, a
-required enabling change, a regression from earlier work, or a
+What does not follow from this mission, each tagged like the criteria: no
+unrelated redesigns, no language migrations, no rewrites without evidence, no
+speculative features, no novelty dependency swaps, no work justified only by
+remaining budget. Every task traces to the mission, a discovered defect, a
+verified risk, a required enabling change, a regression from earlier work, or a
 validation/documentation obligation.
 
 ## Authority
@@ -201,14 +224,28 @@ budget.
 
 ## The readback
 
-The first declarative update after intake leads with the reconstruction: the
-mission as understood, the outcome model in two or three lines, and the top
-assumptions with confidence — followed by the work already in motion. A
-misreconstruction then costs the user one corrective line in minute one
+The first declarative update after intake leads with the reconstruction, in
+full rather than summarized: the mission, every outcome-model criterion with
+its provenance tag, scope and non-goals, and every assumption with its
+confidence — followed by the work already in motion. Full restatement is the
+one that recovers what partial restatement does not: the multi-turn study
+above found a 39% average drop from splitting a single instruction across
+turns, and restating the complete accumulated instruction closed most of the
+gap where restating only part of it closed little. The constraint budget
+above is what makes "full" cheap enough to say once — a capped contract fits
+a readback. A misreconstruction then costs one corrective line in minute one
 instead of a redirect in hour three. When the mission was inferred from an
 outcome-shaped phrase rather than an explicit "start a mission", the readback
 also carries a scale-down affordance: one line naming the interpretation,
 with "say 'just the task' to scale down."
+
+Before it goes out, run the round-trip check: from the finished contract alone,
+original message set aside, re-derive the one-sentence request it implies and
+compare that sentence to what the user wrote. Divergence is logged in
+`.mission/decisions.md` and surfaced in the readback. Round-trip correctness is
+the one fidelity check validated without a reference answer, and the comparison
+localizes the drift rather than merely detecting it. A divergence demotes the
+constraints that caused it, under the one-way rule above.
 
 ## The question gate
 
@@ -224,10 +261,9 @@ Ask the user only when ALL of the following are substantially true:
 6. Every independent branch of work has been completed or continues in
    parallel.
 
-Before asking, always try: repo inspection; existing docs; tests and issue
-history; authoritative external documentation; a safe experiment; comparing
-nearby implementations; a reversible default; deferring the choice; isolating
-the blocked branch.
+Before asking, exhaust the cheaper routes: repo inspection; docs; tests and
+issue history; authoritative external documentation; a safe experiment; a
+nearby implementation; a reversible default; deferral; isolating the branch.
 
 A question that survives the gate is delivered as a **question packet**, not
 a bare question — because the user may answer in minutes or days, and the
@@ -254,3 +290,31 @@ same direction can add up to an effectively irreversible commitment. The
 continuation review checks the assumption ledger for exactly this
 aggregation; when it appears, the aggregate — not the individual choices —
 faces the gate.
+
+## Calibration
+
+Calibration is the non-blocking channel, distinct from the gate above: it rides
+on the readback, its defaults are already in force, and the work is already
+moving. Nothing waits on an answer. A question that meets the gate's six
+conditions is a blocking packet instead; this section relaxes none of them.
+
+A calibration question qualifies on four counts:
+
+| Qualifier | Basis |
+|---|---|
+| It names the decision its answer changes | A question that names no decision is not asked |
+| Its answer is not derivable from the repo, tests, docs, or history | Deriving beats asking on both cost and reliability |
+| Inspection came first | Exploration-first questioning outperformed immediate upfront questioning, which risks asking for specifics beyond what the user knows |
+| Its question type is new this mission | A repeat carries a recorded reason |
+
+Nine framing mistakes disqualify a question: generic or domain-independent; too
+long; jargon; technical rather than domain-level; mispitched for this user's
+demonstrated depth; several requirement types mixed into one; vague with
+several readings; vague with no clear reading; and the load-bearing one —
+asking for a solution rather than a need, which collects a preference the user
+has not reasoned through. Unguided questions rate at human parity, while
+questions written against this list beat human-written ones significantly.
+
+A delegated agent cannot ask the user anything — the asking tool does not exist
+inside a subagent. A specialist returns the question upward in its report, and
+the orchestrator owns the ask.

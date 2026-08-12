@@ -20,12 +20,13 @@ Almost everything in this repo is instructions: skills, reference docs, agent de
 
 Four skills, each `skills/<name>/SKILL.md` with frontmatter `name`, `description` (the trigger surface — concrete quoted phrases, third person), and `metadata.version` (kept equal to the plugin version):
 
-- **mission** — the orchestrator: intake (need-behind-the-ask diagnosis, message normalization, contract, readback), the control loop, delegation, verification, the question gate, communication rules, stopping. Its eight reference docs live in `skills/mission/references/` and are each linked once from the SKILL.md body:
-  - `intent-contract.md` — need diagnosis, message-normalization repair table, evidence hierarchy, confidence tiers, contract template, readback, the canonical question gate (question packets with silence-defaults).
+- **mission** — the orchestrator: intake (need-behind-the-ask diagnosis, message normalization, contract, readback), the control loop, commissioning, verification, the question gate, communication rules, stopping. Its nine reference docs live in `skills/mission/references/` and are each linked once from the SKILL.md body:
+  - `intent-contract.md` — need diagnosis, message-normalization repair table, evidence hierarchy, confidence tiers, contract template (original request, provenance tags, constraint budget), readback (round-trip check), the question gate (question packets with silence-defaults), and the non-blocking calibration channel.
   - `control-loop.md` — loop stages with consequence-proportional ceremony, prioritization, parallelism and conflict control, stall detection, context management, budgets.
   - `amendment.md` — mid-mission directives: ledger-first landing, four-verdict triage, blast-radius sweep, effect boundary.
-  - `delegation.md` — roster, the work packet (context-first ordering, deliverable type, scope fence, progress-grounding), dispatch rules, the falsifiable integration protocol.
-  - `memory.md` — `.mission/` ledger schemas and the resumption protocol (capsule freshness, orphan demotion, HEAD-anchor reconciliation).
+  - `commission.md` — the commission artifact (role and brief as one generated unit, nine slots, self-containment), the chassis table, the pre-dispatch gate.
+  - `delegation.md` — chassis roster, dispatch rules, the falsifiable integration protocol.
+  - `memory.md` — `.mission/` ledger schemas (including roles.md) and the resumption protocol (capsule freshness, orphan demotion, HEAD-anchor reconciliation).
   - `verification.md` — tiered verification depth, the evidence standard, independent review routing, the problem-id circuit breaker (three attempts, then stop-and-choose).
   - `stopping.md` — continuation review, stopping conditions, stop-as-decision, failure reports, the final report template.
   - `telemetry.md` — the two capture paths, the fallback record shape, privacy controls, the recorder's three rules.
@@ -35,7 +36,9 @@ Four skills, each `skills/<name>/SKILL.md` with frontmatter `name`, `description
 
 ### Agents (`agents/` directory)
 
-Nine specialists, one `.md` each, frontmatter `name`, `description` (plain prose: capability, trigger scenarios, when-not-to — no example transcripts), `model: inherit`, `color` (from the documented set: red, blue, green, yellow, purple, orange, pink, cyan), and `tools` — **always declared, least privilege, no `Agent`** (specialists must not sub-delegate). Bodies are second person: role → "When to invoke" → method → discipline → required report format.
+Ten agents, one `.md` each, frontmatter `name`, `description` (plain prose: capability, trigger scenarios, when-not-to — no example transcripts), `model: inherit`, `color` (from the documented set: red, blue, green, yellow, purple, orange, pink, cyan), and `tools` — always declared, least privilege, no `Agent` (specialists must not sub-delegate). Bodies are second person: role → "When to invoke" → method → discipline → required report format.
+
+They are **chassis**, not a routing space: each one is an authority capsule defined by its tool grant, and the per-mission role arrives in the commission (see below). `commissioned-analyst` is deliberately role-neutral — it carries a commissioned read-only role that the named specialties do not fit, which is why the fallback is no longer an unbounded general-purpose agent.
 
 - Read-only by charter (report returned as final message; orchestrator saves it to `.mission/notes/`): **repo-cartographer**, **research-analyst**, **security-reviewer**, **code-quality-reviewer**, **regression-investigator**, **adversarial-critic**. Four of these hold Bash for read-only inspection; the charter and tools list together are the enforcement.
 - Writers (save their own note file, return a terse summary): **implementation-engineer**, **test-engineer** (both: Read, Grep, Glob, Bash, Write, Edit), **docs-writer** (docs files only).

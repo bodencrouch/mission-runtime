@@ -80,11 +80,17 @@ result, replan. Finishing the obvious first task is not the end — the loop
 asks what the goal still needs, and keeps going until a real stopping
 condition is met.
 
-**The agents.** Nine specialists handle bounded jobs: mapping the repo,
+**The agents.** Ten specialists handle bounded jobs: mapping the repo,
 research, implementation, tests, security review, code review, failure
-diagnosis, docs, and a final independent audit. Each gets a scoped
-assignment and reports evidence back. Reviewers cannot write files; writers
-get exact file boundaries.
+diagnosis, docs, a final independent audit, and one general analyst for jobs
+the others do not cover. Reviewers cannot write files; writers get exact file
+boundaries.
+
+**The brief.** Before sending an agent anywhere, the plugin writes the brief
+it would want to be given: what the job is, what counts as evidence, what is
+out of bounds, what the other agents are doing, and what the report must
+contain. It checks that brief against a list before anyone acts on it. This is
+the prompt engineering you would otherwise do yourself.
 
 **Verification.** Work does not count until it is proven: reproduce the
 problem first, fix the cause, add a test that fails without the fix, run the

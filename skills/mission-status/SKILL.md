@@ -7,7 +7,7 @@ description: >
   mission-runtime mission. It reports from the durable `.mission/` ledgers
   without pausing or redirecting the work.
 metadata:
-  version: "0.4.0"
+  version: "0.5.0"
 ---
 
 # Mission Status
@@ -15,16 +15,17 @@ metadata:
 Report state from the ledgers; do not stop, replan, or transfer control. A
 status request is read-only with respect to the mission.
 
-1. Read `.mission/state.md`, `queue.md`, and recent `verification.md` and
-   `decisions.md` entries. If `.mission/` is absent, say there is no active
-   mission (one line) and stop.
+1. Read `.mission/state.md`, `queue.md`, `roles.md`, and recent
+   `verification.md` and `decisions.md` entries. If `.mission/` is absent, say
+   there is no active mission (one line) and stop.
 2. Produce a declarative report, anchored on the capsule's Reported-through
    timestamp so "since the last report" is a recorded fact, not memory:
    - Mission (one line) and overall position against the outcome model's
      acceptance criteria.
    - Discovered: material findings since the last report.
    - Completed: grouped by theme, with what was verified and how.
-   - In progress: current task(s) and what is being validated.
+   - In progress: current task(s) and what is being validated, including any
+     active commission from `roles.md`.
    - Plan changes, amendments, and consequential decisions, each with its
      reason.
    - Risks and unverified assumptions worth the user's attention.

@@ -53,11 +53,11 @@ same field names the recorder emits, so both paths aggregate together:
 ```json
 {"schema":1,"ts":"<ISO8601 UTC>","event":"SubagentSpawn","host":"<host>",
  "session_id":"<id>","mission_active":true,"agent_type":"test-engineer",
- "delegated_prompt":"<the work packet>","cwd":"<project root>"}
+ "delegated_prompt":"<the commission>","cwd":"<project root>"}
 ```
 
 Write at minimum: one `UserPromptSubmit` with the mission prompt, one
-`SubagentSpawn` per delegation with `agent_type` and the work packet, one
+`SubagentSpawn` per delegation with `agent_type` and the commission, one
 `SubagentStop` per return with the distilled outcome, and one `Stop` carrying
 the stopping condition in `status`. Writing these is cheap; reconstructing them
 later is impossible.

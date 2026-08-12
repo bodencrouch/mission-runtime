@@ -24,6 +24,7 @@ READ_ONLY_AGENTS = {
     "code-quality-reviewer",
     "regression-investigator",
     "adversarial-critic",
+    "commissioned-analyst",
 }
 WRITER_AGENTS = {"implementation-engineer", "test-engineer", "docs-writer"}
 WRITE_TOOLS = {"Write", "Edit", "NotebookEdit"}
@@ -188,6 +189,177 @@ class AgentConformance(unittest.TestCase):
         roster = (REPO / "skills" / "mission" / "references" / "delegation.md").read_text()
         for path in AGENTS:
             self.assertIn(path.stem, roster, f"{path.stem} missing from roster")
+
+
+COMMISSION = REPO / "skills" / "mission" / "references" / "commission.md"
+DELEGATION = REPO / "skills" / "mission" / "references" / "delegation.md"
+CONTRACT = REPO / "skills" / "mission" / "references" / "intent-contract.md"
+VERIFICATION = REPO / "skills" / "mission" / "references" / "verification.md"
+
+# The commission's slots. A generated brief that drops one of these is the
+# failure the whole synthesis stage exists to prevent, so the vocabulary is
+# pinned rather than left to prose drift.
+COMMISSION_SLOTS = [
+    "IDENTITY",
+    "OBJECTIVE",
+    "CONTEXT",
+    "SCOPE",
+    "NON-GOALS",
+    "AUTHORITY",
+    "EVIDENCE STANDARD",
+    "OUTPUT CONTRACT",
+    "BUDGET",
+]
+
+
+class CommissionConformance(unittest.TestCase):
+    """The commission is the artifact the runtime generates; these guard its
+    shape and its single ownership."""
+
+    def test_every_slot_is_documented(self):
+        text = COMMISSION.read_text(encoding="utf-8")
+        for slot in COMMISSION_SLOTS:
+            self.assertIn(
+                slot, text,
+                f"commission.md does not document the {slot} slot; a brief "
+                "missing a slot is the defect the pre-dispatch gate exists "
+                "to catch",
+            )
+
+    def test_slot_template_has_exactly_one_owner(self):
+        """delegation.md used to carry the packet template. Two copies of a
+        slot list drift independently and the runtime has no rule for which
+        wins."""
+        delegation = DELEGATION.read_text(encoding="utf-8")
+        duplicated = [s for s in COMMISSION_SLOTS if s in delegation]
+        self.assertEqual(
+            duplicated, [],
+            f"delegation.md restates commission slots {duplicated}; the slot "
+            "vocabulary lives in commission.md alone",
+        )
+
+    def test_gate_covers_the_across_set_checks(self):
+        """Step repetition — two agents doing the same work — is the largest
+        measured multi-agent failure mode. The sibling-ownership rule is what
+        prevents it."""
+        text = COMMISSION.read_text(encoding="utf-8")
+        for probe in ("owned by exactly one", "siblings own", "overlapping files"):
+            self.assertIn(
+                probe, text,
+                f"commission.md's pre-dispatch gate is missing {probe!r}",
+            )
+
+    def test_gate_covers_the_per_commission_checks(self):
+        """A commission that passes the across-set checks but skips the
+        per-commission ones can still ship with an empty evidence standard or
+        an authority claim its chassis cannot back."""
+        text = COMMISSION.read_text(encoding="utf-8")
+        for probe in (
+            "slots present and non-empty",
+            "Self-contained",
+            "Authority within",
+            "evidence standard names a check",
+            "output contract enumerates",
+            "tool grant is non-empty",
+        ):
+            self.assertIn(
+                probe, text,
+                f"commission.md's per-commission gate is missing {probe!r}",
+            )
+
+    def test_roster_names_resolve_to_real_agents(self):
+        """The existing roster test is one-directional: it catches an agent
+        missing from delegation.md but not a delegation.md row naming an agent
+        that does not exist."""
+        names = {p.stem for p in AGENTS}
+        rows = re.findall(r"^\| ([a-z][a-z-]+) \|", DELEGATION.read_text(), re.M)
+        unknown = sorted(set(rows) - names)
+        self.assertEqual(
+            unknown, [],
+            f"delegation.md rosters agents that do not exist: {unknown}",
+        )
+
+
+class ContractDriftControls(unittest.TestCase):
+    def test_template_preserves_the_original_request(self):
+        """Premature commitment to an early reading, with no path back to the
+        user's words, is the dominant long-conversation failure."""
+        self.assertIn(
+            "## Original request", CONTRACT.read_text(encoding="utf-8"),
+            "the contract template must carry the user's message verbatim",
+        )
+
+    def test_criteria_carry_provenance_tags(self):
+        text = CONTRACT.read_text(encoding="utf-8")
+        for tag in ("[stated]", "[entailed]", "[repo:", "[default]"):
+            self.assertIn(
+                tag, text,
+                f"provenance tag {tag} absent; an untagged constraint is an "
+                "invented requirement with nothing to trace it to",
+            )
+
+    def test_framing_mistakes_are_named_and_counted(self):
+        """Unguided questions rate at human parity; questions checked against
+        a named mistake list beat human-written ones. An uncounted list drifts
+        silently as it is edited."""
+        text = CONTRACT.read_text(encoding="utf-8")
+        match = re.search(r"Nine framing mistakes disqualify", text)
+        self.assertIsNotNone(
+            match, "the calibration section must name and count its framing "
+            "mistakes, not leave them as an unheaded list"
+        )
+        self.assertIn(
+            "asking for a solution rather than a need", text,
+            "the load-bearing framing mistake is missing",
+        )
+
+    def test_constraint_budget_is_named_with_its_basis(self):
+        """Instruction-following degrades with count, and long context
+        degrades recall at every length increment — the cap and the ceiling
+        are the mechanical answer, and an unstated number is unenforceable."""
+        text = CONTRACT.read_text(encoding="utf-8")
+        self.assertIn("at most seven", text)
+        self.assertIn("120 lines", text)
+        self.assertIn(
+            "unmeasured", text,
+            "the cap must say plainly that it is a starting value, not a "
+            "measured one, or it will be mistaken for evidence it is not",
+        )
+
+    def test_calibration_is_not_the_question_gate(self):
+        """Calibration is non-blocking and defaulted; the question gate blocks.
+        Merging them would either silence calibration or loosen the gate."""
+        text = CONTRACT.read_text(encoding="utf-8")
+        self.assertIn("## Calibration", text)
+        self.assertIn("## The question gate", text)
+
+
+class VerificationPortability(unittest.TestCase):
+    def test_no_standing_verification_procedure(self):
+        """Verification depth splits by model generation: one model's guidance
+        is to remove these instructions, another's is to add them. The
+        invariant ports; the procedure does not."""
+        text = VERIFICATION.read_text(encoding="utf-8")
+        banned = re.compile(
+            r"always verify|use a subagent to verify|double-check"
+            r"|audit, always|always before declaring",
+            re.IGNORECASE,
+        )
+        hits = banned.findall(text)
+        self.assertFalse(
+            hits, f"verification.md carries standing depth prose: {hits}"
+        )
+
+    def test_states_the_non_authoring_invariant(self):
+        """Absence of bad phrasing is not presence of the rule. Agents asked to
+        judge their own work praise it — one measured study found 38 false
+        positives per 100 self-verified plans."""
+        self.assertIn(
+            "did not produce the work",
+            VERIFICATION.read_text(encoding="utf-8"),
+            "verification.md must state that the agent producing a change is "
+            "not the one that verifies it",
+        )
 
 
 class StyleHazards(unittest.TestCase):
