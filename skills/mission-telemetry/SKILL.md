@@ -9,7 +9,7 @@ description: >
   recorded run data, checks that recording is actually working, and changes the
   telemetry configuration.
 metadata:
-  version: "0.4.0"
+  version: "0.5.0"
 ---
 
 # Mission Telemetry

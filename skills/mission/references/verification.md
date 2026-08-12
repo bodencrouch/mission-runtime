@@ -1,5 +1,17 @@
 # Verification, Review, and Failure Recovery
 
+## Contents
+
+- [Verification depth scales with consequence](#verification-depth-scales-with-consequence)
+- [Evidence standard for a "fix"](#evidence-standard-for-a-fix)
+- [Independent review](#independent-review)
+- [Fidelity checks are asymmetric](#fidelity-checks-are-asymmetric)
+- [Localized repair](#localized-repair)
+- [Failure classification](#failure-classification)
+- [Recovery protocol](#recovery-protocol-recoverable-classes)
+- [Non-recoverable classes](#non-recoverable-classes)
+- [Self-correction](#self-correction)
+
 Implementation is not completion. Confidence language is not evidence. A
 change counts as done only when the evidence standard in the contract is met
 and recorded in `.mission/verification.md`.
@@ -10,10 +22,27 @@ and recorded in `.mission/verification.md`.
 - Consequential changes (behavior users depend on, shared surfaces, risky
   areas): the full evidence standard below, including the sibling sweep and
   an independent review.
-- Mission completion: the adversarial audit, always.
+- Mission completion: an adversarial audit of the completion claim.
 
 Assign the tier when the task enters the queue ("evidence needed for
 completion"), so the expensive gates spend where the risk is.
+
+**The non-authoring invariant.** The context that produced a change does not
+decide whether it worked. A consequential change gets its check in a fresh
+context that did not author it, because agents asked to evaluate their own
+work tend to praise it: self-verification of plans produced 38 false positives
+per 100 in one measured study, and self-critique scored below an external
+check on the same work.
+
+**Depth is not standing prose.** A generated brief carries no standing
+verification-depth instruction. Current guidance splits by model generation:
+one model's guidance is to strip explicit verification instructions because
+they cause over-verification at no quality gain, another's is to make
+self-verification explicit on long runs. The invariant above holds on both —
+a consequential change gets an independent, non-authoring check — while a
+procedure ("spawn a reviewer after each step") is wrong on one of them. How
+deeply a given model checks itself is host configuration, or a repair recorded
+with the failure it corrects.
 
 ## Evidence standard for a "fix"
 
@@ -36,9 +65,9 @@ completion"), so the expensive gates spend where the risk is.
 
 ## Independent review
 
-For any consequential change — and always before declaring the mission
-complete — dispatch reviewers whose job is to falsify, not to approve.
-Route by object: a completion claim or the ledgers → adversarial-critic;
+A consequential change, and every completion claim, gets a review from a
+context that did not produce the work — reviewers whose job is to falsify,
+not to approve. Route by object: a completion claim or the ledgers → adversarial-critic;
 input handling, auth, secrets, permissions, dependencies → security-reviewer;
 maintainability and convention adherence → code-quality-reviewer; changed
 behavior → regression-investigator. Reviewers get read-only access, the
@@ -50,6 +79,23 @@ filters the report, never the search.
 Material findings become queue tasks; the review verdict is logged in
 verification.md. A second-pass audit that finds nothing new is itself
 evidence for stopping.
+
+## Fidelity checks are asymmetric
+
+A faithfulness or entailment check — does this claim follow from the evidence
+behind it? — carries weight in one direction only. A failed check demotes the
+claim to unsupported and sends it back for evidence or withdrawal. A passed
+check certifies nothing: such checks are biased against heavily paraphrased
+text, and the best of them reach about 84% balanced accuracy, so a pass is
+consistent with a claim that is wrong.
+
+## Localized repair
+
+When verification fails against one acceptance criterion, the repair happens
+at that criterion: fix the check, the evidence, or the change it names, and
+leave the rest of the contract as written. Regenerating a specification to fix
+one clause is how constraints disappear between rewrites — the failure gets
+attributed to a clause, and that clause gets repaired.
 
 ## Failure classification
 

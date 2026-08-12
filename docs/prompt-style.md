@@ -17,6 +17,7 @@ rather than sourced guidance say so.
 - [Examples](#examples)
 - [Skills](#skills)
 - [Agents](#agents)
+- [Commissions](#commissions)
 - [CLAUDE.md and user-facing docs](#claudemd-and-user-facing-docs)
 - [Checking a prompt change](#checking-a-prompt-change)
 - [Sources](#sources)
@@ -71,17 +72,22 @@ Calibrate specificity to fragility ("degrees of freedom") [SBP]:
 | Freedom | Use for (this repo) | Form |
 |---|---|---|
 | High | prioritization, replanning, intent reconstruction | principles + one example |
-| Medium | delegation packets, the operating contract | template with slots |
+| Medium | commissions, the operating contract | template with slots |
 | Low | ledger schemas, telemetry record shape, test and doctor commands | exact template, exact command |
 
 ## Model portability
 
 The runtime runs on whatever model and host the user already has, and its
 promise is that the user's prompt needs no adjustment per model. Prompt
-surfaces therefore specify the destination, the terrain, the laws, and the
-evidence of arrival — never the route. Name outcomes, invariants, authority,
-and evidence standards; leave search order, decomposition, tool sequence,
-and reasoning depth to the executing model. [F5][CE]
+surfaces therefore specify the destination and the evidence of arrival, never
+the route: name outcomes, invariants, authority, and evidence standards, and
+leave search order, decomposition, tool sequence, and reasoning depth to the
+executing model. [F5][CE] The sharpest live case is verification depth — one
+current model's guidance is to remove explicit verification instructions
+because they cause over-verification at no quality gain, another's is to make
+self-verification explicit for long runs. An invariant ("a consequential
+change gets an independent, non-authoring check") holds on both; a procedure
+("use a subagent to verify") is wrong on one. [O5][F5]
 
 Three rules follow:
 
@@ -125,8 +131,8 @@ shape so a reader (human or model) knows where to look. XML tags appear
 only to delimit examples or variable content inside a prompt. [C4BP][CE]
 
 Numbered lists only where order or completeness matters; otherwise prose or
-bullets. [C4BP] In delegation packets and long prompts, bulk context comes
-first and the ask comes last. [C4BP]
+bullets. [C4BP] In commissions and long prompts, bulk context comes first and
+the ask comes last. [C4BP]
 
 One term per concept, everywhere:
 
@@ -137,17 +143,18 @@ One term per concept, everywhere:
 | `.mission/mission.md` | the contract |
 | `.mission/` files | ledgers |
 | `.mission/state.md` | the resume capsule |
-| A delegation's full brief | packet |
+| A delegation's role and brief, one artifact | the commission |
+| A blocking ask, with default and silence behavior | the question packet |
 | An agent's returned output | report |
 | `~/.missionruntime/` | the store |
-| Loop stages | interpret, inspect, model, queue, execute, verify, update memory, generate follow-ups, replan |
+| Loop stages | interpret, inspect, model, queue, commission, execute, verify, update memory, generate follow-ups, replan |
 
 ("Learn" is not a stage name; use "update memory" and "generate
 follow-ups".) [SBP: consistent terminology]
 
 ## Examples
 
-One canonical worked example of an artifact (a filled packet, a queue
+One canonical worked example of an artifact (a filled commission, a queue
 entry, a decision record) teaches more than a paragraph of schema prose.
 Use 3–5 diverse, canonical examples at most; never accumulate edge-case
 laundry lists. [C4BP][CE][SBP]
@@ -166,8 +173,10 @@ failure mode. [SBP][SC][CCS]
 instructions (skill bodies speak to the runtime; second person is for
 agents). The body is a table of contents that carries the standing rules
 and points to references for depth — information lives in the body or a
-reference, never both. Standing rules go in the first ~5,000 tokens: that
-is what gets re-attached after context compaction. [SBP][PD][CCS]
+reference, never both. Put the standing rules near the top, ahead of the
+detail they govern, because long-context recall degrades with depth. (House
+rule. This carried an invented ~5,000-token compaction figure under three
+source tags until a 2026-08-12 audit found it in none of them.)
 
 **References.** One level deep. Every reference is linked from SKILL.md
 exactly once, with when-to-read guidance ("Read `references/stopping.md`
@@ -185,8 +194,18 @@ uses full repo-relative paths. (House rule; fixes observed drift.)
 **Description.** Plain prose, current official style — not transcript
 `<example>` blocks: state the capability, 2–4 trigger scenarios, a
 proactive cue, and when *not* to invoke. Descriptions for all agents load
-whenever the plugin is registered, so brevity here is paid for nine times
-over. [SA][PD]
+whenever the plugin is registered, so brevity here is paid for once per
+agent. [SA][PD]
+
+The proactive cue is a deliberate exception to Register, recorded because
+two current sources disagree: the sub-agents docs recommend "use
+proactively" in this field, while the prompting page warns that cues added
+to fix undertriggering now overtrigger. [SA][C4BP] The reconciliation both
+permit: push on *coverage* — concrete trigger phrases, breadth of matching
+situations — and stay restrained in *language*. A two-word cue in the
+description field is coverage; emphasis capitals in a body are language.
+Four agent descriptions carry the cue today. Retest when a model generation
+changes, and drop it if delegation starts firing where it should not.
 
 **Body.** Second person. Shape: role → method → quality bar → required
 report format, ending on the report format. 500–3,000 characters works
@@ -210,9 +229,23 @@ never restate it divergently. [SA][CCS]
 recorded here or in the delegation reference, and is copied exactly.
 (House rule; nine-way copy-paste drift was observed.) Current canonical
 sentence for reviewer agents, whose home is the verification reference:
-"Search broadly, then report every finding that affects <the packet's
+"Search broadly, then report every finding that affects <the commission's
 stated requirements> and no others — the reporting bar filters the report,
 never the search." — only the angle-bracketed object varies per agent.
+
+## Commissions
+
+**Identity.** One sentence, naming domain and scope, no superlatives, no claim
+of infallibility. The evidence for role prompting supports tone and behavior,
+not accuracy — a stronger claim than one sentence buys nothing and reads as
+padding. [O5]
+
+**Self-containment.** The only thing that reaches a subagent is the prompt
+string; it holds no memory of the dispatching conversation. State the
+objective, the deliverable shape, the tools and sources to use, and the task
+boundaries every time, in the commission itself — no referent points outside
+it. [SA][MARS] The discovery-vs-reporting split under Model portability
+governs a reviewing commission's bar the same way it governs any other.
 
 ## CLAUDE.md and user-facing docs
 
@@ -249,9 +282,15 @@ change lands in `.claude-plugin/plugin.json` and
 
 ## Sources
 
+Checked 2026-08-12. The per-technique prompt-engineering pages were
+consolidated: `claude-4-best-practices`, `system-prompts`, and
+`be-clear-and-direct` now redirect to one page, so `C4BP` points there.
+
 | Tag | Source |
 |---|---|
-| C4BP | platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-4-best-practices |
+| C4BP | platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices |
+| O5 | platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5 |
+| MARS | anthropic.com/engineering/multi-agent-research-system |
 | F5 | platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5 |
 | SBP | platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices |
 | CE | anthropic.com/engineering/effective-context-engineering-for-ai-agents |

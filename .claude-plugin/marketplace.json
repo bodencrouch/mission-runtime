@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "mission-runtime",
-      "description": "Give Claude an outcome instead of a task list. The runtime recovers the need behind your words, writes an operating contract, plans and delegates work to specialist subagents, verifies results with evidence, and keeps mission memory on disk so work survives sessions. It stops only when the outcome is verified — or says honestly why it cannot be. Local-only telemetry records what each run cost.",
+      "description": "Give Claude an outcome instead of a task list. The runtime works out what you actually need, writes it down as a contract, and then writes the full brief for every specialist it sends out \u2014 the prompt engineering you would otherwise do yourself. It checks each brief before anyone acts on it, proves results with evidence, and keeps mission memory on disk so work survives sessions. It stops only when the outcome is verified, or says honestly why it cannot be. Local-only telemetry records what each run cost.",
       "author": {
         "name": "bodencrouch"
       },

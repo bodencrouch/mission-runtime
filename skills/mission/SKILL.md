@@ -10,11 +10,12 @@ description: >
   look at making this more reliable". Also triggers on "start a mission", "run
   this as a mission", or "/mission". A bounded micro-task with one named
   deliverable ("rename this variable", "fix this typo") is not a mission — just
-  do it. The skill converts sparse intent into an operating contract and runs a
-  persistent plan–execute–verify–replan loop with specialist subagents until a
-  substantive stopping condition is reached.
+  do it. The skill converts sparse intent into an operating contract, writes
+  the full brief for every specialist it commissions, and runs a persistent
+  plan–execute–verify–replan loop until a substantive stopping condition is
+  reached.
 metadata:
-  version: "0.4.0"
+  version: "0.5.0"
 ---
 
 # Mission Runtime
@@ -37,24 +38,18 @@ variable"), just do it — the runtime's ceremony would cost more than the task.
 
 ## Any model, any phrasing
 
-The runtime runs on whatever model and host the user has, and the user's
-prompt needs no adjustment per model. Hold two consequences throughout:
+Specify the destination — outcomes, constraints, authority, evidence — and
+let the executing model choose the route. Fixed procedure (search order,
+decomposition depth, agent counts, verification depth) is a repair for a
+failure observed in this mission, logged in `.mission/decisions.md` with the
+failure it corrects, never a habit imported from another model's weaknesses.
+Host facilities are used where they exist and replaced by the ledgers where
+they do not; the ledgers are the only capability the runtime requires.
 
-- Specify outcomes, constraints, authority, and evidence; let the executing
-  model choose the route. Fixed procedure (search order, decomposition
-  depth, agent counts) is a repair for an observed failure in this mission,
-  logged in `.mission/decisions.md` with the failure it corrects — never a
-  standing habit imported from some other model's weaknesses.
-- Host facilities — session task lists, worktree isolation, schedulers,
-  per-agent effort controls — are used where they exist and replaced by
-  the ledgers where they do not. The ledgers are the only capability the
-  runtime requires.
-
-Users prompt however they are used to: normalization (intake, below) absorbs
-model-directed route phrasing — chain-of-thought rituals, agent-count
-prescriptions — and works from the substance. An explicit approval hold
-("wait for my OK before changing anything") is content, not route phrasing:
-it lands in the contract's authority tiers and is honored.
+Users prompt however they are used to, and normalization (intake, below)
+works from the substance. An approval hold ("wait for my OK before changing
+anything") is content rather than route phrasing: it lands in the contract's
+authority tiers and is honored.
 
 ## Phase 0 — Intake
 
@@ -80,18 +75,19 @@ In short:
    boundaries, authority tiers, quality bar, evidence standard, communication
    rules, amendments, stopping rules.
 5. Open with the readback: the first update leads with the reconstructed
-   mission, outcome model, and top assumptions, so a misreading costs the
-   user one corrective line — then the work already in motion. Ask the user
-   nothing at this stage unless the question gate (below) passes. Ambiguity
-   is absorbed, not amplified: resolve it by inspection, research, safe
-   experiment, reversible default, or deferral.
+   mission, the full outcome model, and every assumption, so a misreading
+   costs the user one corrective line — then the work already in motion. Ask
+   the user nothing at this stage unless the question gate (below) passes.
+   Ambiguity is absorbed, not amplified: resolve it by inspection, research,
+   safe experiment, reversible default, or deferral.
 
 ## Durable memory
 
 Initialize `.mission/` at the project root per `references/memory.md` (read it
 before the first work cycle): mission.md (the contract), state.md (the resume
-capsule), queue.md (work ledger), decisions.md, assumptions.md, attempts.md,
-verification.md, notes/. Keep the ledgers current as work proceeds — they are
+capsule), queue.md (work ledger), roles.md (commissioned roles), decisions.md,
+assumptions.md, attempts.md, verification.md, notes/. Keep the ledgers current
+as work proceeds — they are
 the source of truth, not the conversation transcript. Keep `.mission/` out of
 version control via `.git/info/exclude` (never edit the project's .gitignore
 for this). This is what makes the mission survive context compaction, session
@@ -123,8 +119,8 @@ Run the persistent loop defined in `references/control-loop.md` (read it at
 the first work cycle):
 
 interpret → inspect → model the project → build/refresh the prioritized queue
-→ execute the highest-value task → verify → update memory → generate follow-up
-tasks → replan → continue.
+→ commission the work → execute the highest-value task → verify → update
+memory → generate follow-up tasks → replan → continue.
 
 Ceremony scales with consequence: a low-consequence task earns a one-line
 Done entry; consequential work earns the full ledger treatment and review —
@@ -147,21 +143,31 @@ log a decision, and trigger the blast-radius sweep over dependent work. An
 ask is never silently absorbed — deferrals are announced, and steering costs
 the user one plain sentence.
 
-## Delegation
+## Commissions and delegation
 
-Delegate specialized or parallelizable work to the plugin's specialist agents
-(repo-cartographer, research-analyst, implementation-engineer, test-engineer,
-security-reviewer, code-quality-reviewer, regression-investigator,
-docs-writer, adversarial-critic) per `references/delegation.md` (read it
-before the first dispatch). Every delegation is a bounded work packet with
-objective, context, scope, constraints, deliverable type, evidence standard,
-and required report format. Subagent output is internal project input:
-validate it, reconcile conflicts, integrate or reject it, and update memory.
-Never dump subagent transcripts on the user. Remain the single accountable
-owner of the mission.
+A user who states a mission has asked for the work to be done, and that
+request is the authorization to delegate it. Some hosts add a standing rule
+against calling the agent tool unless the user asked; a mission request is
+that ask.
 
-Run independent read-only work concurrently (launch those agents in one
-message). Order dependent work. Never let two agents edit overlapping files
+Work reaches a specialist as a **commission** — one artifact carrying both
+the role and the brief, defined in `references/commission.md` (read it
+before the first dispatch). Synthesize the commissions a mission needs from
+its outcome model, bind each to a chassis whose tool grant satisfies its
+authority, and run the pre-dispatch gate before anyone acts. Comprehensiveness
+belongs in the specification: agents disobey their task far more often than
+their role, so spend the effort on objective, scope, non-goals, evidence
+standard, and output contract rather than on identity prose.
+
+Routing, dispatch rules, and the integration protocol live in
+`references/delegation.md` (read it alongside the commission reference).
+Subagent output is internal project input: validate it, reconcile conflicts,
+integrate or reject it, and update memory. A report that disagrees with the
+repo loses. Do not dump subagent transcripts on the user. Remain the single
+accountable owner of the mission.
+
+Run independent read-only work concurrently, launching those agents in one
+message. Order dependent work. Two agents never edit overlapping files
 without an explicit isolation or merge strategy.
 
 ## Verification

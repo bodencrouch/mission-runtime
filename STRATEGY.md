@@ -1,82 +1,90 @@
 ---
 name: mission-runtime
-last_updated: 2026-08-07
+last_updated: 2026-08-12
 ---
 
 # mission-runtime Strategy
 
 ## Target problem
 
-A developer who delegates work to an AI assistant still does the hardest part
-themselves: turning a rough goal into precise instructions, catching early
-stops, and re-explaining everything when the session ends. Assistants act on
-what was literally said rather than what was actually needed, and their memory
-dies with the conversation.
+A developer who wants an AI to own an outcome has to do the prompt engineering
+first: decompose the goal, define who does what, state acceptance criteria, and
+say what evidence counts. Skip that work and the assistant executes the literal
+words; do it properly and the developer has already done the hard part
+themselves.
 
 ## Our approach
 
-Treat the user's message as evidence of intent, not as the task list: the
-runtime reconstructs the outcome the user actually needs, writes it down as a
-contract, and runs a persistent plan–execute–verify loop against that contract
-until an evidence-backed stopping condition is met. All mission state lives in
-files on disk, so the work outlives any one session.
+The runtime does the prompt engineering the user skipped. It reconstructs the
+need behind the message, writes it down as a contract, and synthesizes the
+specialist roles and briefs that this particular mission demands — every
+generated line traceable to the request or to gathered evidence, and checked
+for drift before anyone acts on it. The bet is on generated specification,
+rather than on a fixed agent roster or on asking the user more questions.
 
 ## Who it's for
 
-**Primary:** A developer delegating outcome-shaped work — "make this
-reliable", "clean this up", "get it production-ready". They're hiring
-mission-runtime to turn a one-sentence goal into finished, verified
-engineering work without supervising each step.
+**Primary:** A developer delegating outcome-shaped work — "make this reliable",
+"clean this up", "get it production-ready". They're hiring mission-runtime to
+turn a one-sentence goal into finished, verified engineering work without
+writing the brief and without supervising each step.
 
 ## Key metrics
 
-- **User prompts per completed mission** — how much steering a mission needs
-  after the opening message; measured from `~/.missionruntime/` via
-  `mr_report.py`.
-- **Verified-completion rate** — share of missions that end with evidence in
+- **Readback correction rate** — share of missions whose first user reply after
+  the readback corrects the reconstructed mission or outcome model; read from
+  `.mission/` amendments against session records. Rises when intent recovery
+  drifts.
+- **Steering prompts per completed mission** — user messages after the opener,
+  including anything the user has to re-explain after a resume; measured from
+  `~/.missionruntime/` via `mr_report.py`.
+- **Packet rejection rate** — share of delegations whose report is rejected at
+  integration or re-dispatched with a sharpened brief; counted from
+  `.mission/attempts.md`. Rises when generated briefs are underspecified.
+- **Verified-completion rate** — share of missions ending with evidence in
   `.mission/verification.md` rather than silently stalling; read from the
   mission ledgers.
-- **Resume survival** — whether a mission continued in a later session picks
-  up without the user re-explaining anything; observed from session records
-  and `.mission/state.md` freshness.
-- **Cost per mission** — wall-clock, tool calls, and subagent spend for
-  mission sessions against the non-mission baseline; `mr_report.py`'s
-  comparison view.
+- **Cost per mission** — wall-clock, tool calls, and subagent spend for mission
+  sessions against the non-mission baseline; `mr_report.py`'s comparison view.
 
 ## Tracks
 
-### Intent and instruction quality
+### Intent reconstruction
 
-The prompt surfaces — skills, agents, reference docs — that turn sparse input
-into the right mission and the right behavior.
+Recovering the need behind a sparse message and fixing it as a contract: the
+diagnosis, the confidence tiers, the readback, and the calibration the user can
+answer or ignore.
 
-_Why it serves the approach:_ reconstruction of intent is the product; it is
-only as good as the instructions that define it.
+_Why it serves the approach:_ every generated brief inherits the errors of the
+reconstruction it came from, so this is where drift is cheapest to catch.
 
-### Durable memory and resumption
+### Role synthesis and briefing
 
-The `.mission/` ledger system, resume flow, and state discipline.
+Deriving the role set a specific mission demands, writing each brief to a
+checkable standard, and validating it before dispatch.
 
-_Why it serves the approach:_ the contract-and-loop model only works if the
-mission survives session death and context loss.
+_Why it serves the approach:_ this is the prompt engineering the user was
+skipping, and it is where a generated prompt either holds or drifts.
 
-### Verification and delegation
+### Durable evidence
 
-Evidence-gated completion: specialist agents for bounded work, reproduction
-before fixes, tests as proof, adversarial review as the final gate.
+The `.mission/` ledgers, the resume protocol, verification gates, and
+adversarial audit before any completion claim.
 
 _Why it serves the approach:_ unsupervised work is only acceptable when
-completion claims carry evidence.
+completion carries evidence, and only if the mission survives session death.
 
 ### Measurement
 
 Local telemetry that records what each run did and what it cost.
 
-_Why it serves the approach:_ an autonomous runtime that can't be benchmarked
-can't be trusted or improved.
+_Why it serves the approach:_ a runtime that writes its own instructions has to
+be benchmarked, or nobody can tell good generation from confident generation.
 
 ## Not working on
 
+- Teaching users to write better prompts. Improving the input is the runtime's
+  job; a user who has to learn the phrasing has been handed the work back.
 - Porting the whole plugin to other hosts — only the telemetry surface is
   cross-host today.
 - Any telemetry that leaves the machine. Records stay on local disk, always.
@@ -84,5 +92,9 @@ can't be trusted or improved.
 
 ## Marketing
 
-**One-liner:** State an outcome. The runtime owns the engineering work until
-that outcome is real and verified.
+**One-liner:** Give it one line. The runtime writes the full brief, assembles
+the specialists, and works until the outcome is verified.
+
+**Key message:** You describe the outcome you want. The runtime works out what
+you actually need, writes the specification, and builds the team of specialists
+to deliver it. It shows you its reading first, so one sentence corrects it.

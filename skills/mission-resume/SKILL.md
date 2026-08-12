@@ -10,7 +10,7 @@ description: >
   It reloads the durable mission state and re-enters the control loop without
   asking the user to restate anything.
 metadata:
-  version: "0.4.0"
+  version: "0.5.0"
 ---
 
 # Resume a Mission
@@ -25,12 +25,15 @@ user to restate the objective, prior decisions, or context that exists in
    objective, start a fresh mission via the `mission` skill instead.
 2. Follow the resumption protocol in
    `${CLAUDE_PLUGIN_ROOT}/skills/mission/references/memory.md`: read
-   state.md, then mission.md (including Amendments), then queue.md; skim
-   recent decisions, assumptions, attempts. Check capsule freshness — a
-   ledger entry newer than the capsule means the last session died before
-   its refresh, so rebuild the capsule from the ledgers before trusting it.
-   Demote Active queue entries to Pending with an orphan note: no agent
-   survived the old session.
+   state.md, then mission.md (including Amendments), then queue.md, then
+   roles.md; skim recent decisions, assumptions, attempts. Check capsule
+   freshness — a ledger entry newer than the capsule means the last session
+   died before its refresh, so rebuild the capsule from the ledgers before
+   trusting it. Demote Active queue entries to Pending and mark active
+   roles.md entries orphaned, each with an orphan note: no agent survived
+   the old session. Re-commission orphaned work from its roles.md entry, so
+   the resumed mission re-instantiates the same team instead of deriving a
+   different one and re-running work the ledgers already paid for.
 3. Reconcile against reality before acting — the repo may have changed while
    the runtime was away: `git log <capsule sha>..HEAD` (the capsule records
    its HEAD anchor), `git status`, a cheap test run if the suite is fast.
@@ -40,12 +43,17 @@ user to restate the objective, prior decisions, or context that exists in
    from `queue.md` and mark the active task in progress — `queue.md` stays
    authoritative either way. Then execute the capsule's "Next action".
 5. Re-enter the full control loop exactly as defined by the `mission` skill
-   and its references. All contract terms — authority tiers, question gate,
-   communication rules, stopping policy — remain in force unchanged. If the
-   resuming message steers the mission, it is a mid-mission directive:
+   and its references. Reload the contract's terms in full — objective,
+   acceptance criteria, non-goals, authority tiers, question gate,
+   communication rules, stopping policy — rather than a delta summary,
+   because the failure being repaired is premature commitment to an early
+   reading rather than forgotten text, and restating the complete
+   accumulated instruction recovers substantially more than a partial recap.
+   If the resuming message steers the mission, it is a mid-mission directive:
    triage it per the mission skill's amendment protocol and log the outcome.
 
-Give the user one short declarative line on re-entry ("Resuming: <mission>.
-Last completed X; picking up with Y."), re-present any question packet
-parked under Blocked, and continue working. Do not ask whether to continue —
-resumption is the user's answer.
+The full terms in step 5 are what the runtime reloads into its own working
+context; what the user sees is one short declarative line ("Resuming:
+<mission>. Last completed X; picking up with Y."). Re-present any question
+packet parked under Blocked, then continue working. Do not ask whether to
+continue — resumption is the user's answer.

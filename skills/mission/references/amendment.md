@@ -24,8 +24,8 @@ to directives exactly as to the opening message: repair form, never content.
 | **Separate mission** | The ask is a different outcome, not an evolution of this one | Default: record it as Deferred with trace, finish the current mission, surface the deferral explicitly in the next update — silence-means-continue cuts both ways, so a parked ask is always announced, never assumed accepted |
 
 Triage is usually an inline judgment from the ledgers the orchestrator
-already holds. Delegate a read-only analysis packet (per the delegation
-protocol) instead when the directive contradicts the contract or invalidates
+already holds. Commission a read-only analysis instead when the directive
+contradicts the contract or invalidates
 Done work — fresh context guards against sunk-cost anchoring — or when the
 orchestrator is deep in an implementation and cannot triage well mid-flight.
 
@@ -44,8 +44,8 @@ the decisions.md amendment entry.
 
 ## Effect boundary
 
-An amendment takes effect at the next loop-stage boundary. In-flight agent
-packets cannot be re-scoped mid-run: let a packet finish if its result stays
+An amendment takes effect at the next loop-stage boundary. An in-flight
+commission cannot be re-scoped mid-run: let it finish if its result stays
 useful under the amended contract, or cancel it and log the partial to
 attempts.md if it does not. When a directive touches files an active writer
 owns, the queue's ownership record decides: wait for the writer to return, or
@@ -61,6 +61,6 @@ amendment — the contract's scope named Linux CI only. Amendments section
 gains the directive verbatim; decisions.md logs the amendment; blast-radius
 sweep finds one Done item ("suite green on supported platforms") demoted to
 re-verify and one assumption ("POSIX-only paths acceptable") refuted, which
-spawns two queue tasks. The active flake-hunt packet is unaffected and
+spawns two queue tasks. The active flake-hunt commission is unaffected and
 continues. Next update reads: "Windows CI folded into the mission; two
 path-handling tasks queued; flake hunt still running."

@@ -10,9 +10,10 @@
 ## Ground rules
 
 Create `.mission/` at the project root on mission start. It is the runtime's
-persistent brain: mission memory, work ledger, decision log, assumption
-ledger, attempt history, verification ledger, and resume capsule. The
-conversation window is a cache; these files are the database.
+persistent brain: mission memory, work ledger, commissioned role ledger,
+decision log, assumption ledger, attempt history, verification ledger, and
+resume capsule. The conversation window is a cache; these files are the
+database.
 
 Keep it out of version control without touching the project: append
 `.mission/` to `.git/info/exclude` (create the file if absent). Never commit
@@ -70,6 +71,24 @@ The git HEAD anchor makes reconciliation on resume exact: `git log
 ## Done      (task — evidence pointer — completed)
 ## Canceled  (task — why)
 ```
+
+### roles.md — commissioned role ledger
+
+One entry per commission, written at dispatch and updated when the report
+lands. A resumed mission that re-derives its role set from scratch commissions
+a different team and re-runs work the ledgers already paid for; this index is
+what makes the same team re-instantiable.
+
+```markdown
+## <commission-id> <objective, one line>
+Chassis: <agent name> | Scope: <files and systems in bounds> |
+Status: active/returned/integrated/rejected/orphaned |
+Report: notes/<seq>-<agent>-<slug>.md
+```
+
+Keep it an index. The commission's full text stays in the dispatch that
+carried it; duplicating nine slots per entry makes the ledger cost more to
+read than to rebuild.
 
 ### decisions.md — append-only decision log
 
@@ -135,12 +154,15 @@ are for reasoning, telemetry is for measurement.
 ## Resumption protocol
 
 On `mission-resume` (or any cold start where `.mission/` exists): read
-state.md, then mission.md (including Amendments), then queue.md; skim recent
-decisions, assumptions, attempts. Check capsule freshness: a ledger entry
-newer than the capsule means the last session died before its refresh —
-rebuild the capsule from the ledgers before trusting it. Demote every Active
-queue entry to Pending with an orphan note: no agent survived the session,
-so "Active" on a cold start is always stale. Reconcile against reality —
+state.md, then mission.md (including Amendments), then queue.md, then
+roles.md; skim recent decisions, assumptions, attempts. Check capsule
+freshness: a ledger entry newer than the capsule means the last session died
+before its refresh — rebuild the capsule from the ledgers before trusting it.
+Demote every Active queue entry to Pending with an orphan note, and mark every
+roles.md entry still `active` as `orphaned` with the same note: no agent
+survived the session, so "active" on a cold start is always stale. Re-commission
+orphaned work from the roles.md entry rather than deriving a fresh role for it.
+Reconcile against reality —
 `git log <capsule sha>..HEAD`, `git status`, a cheap test run if the suite
 is fast — because the repo may have changed while the runtime was away. Fold
 discrepancies into the queue as new evidence, and re-verify any Done items
