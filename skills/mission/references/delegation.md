@@ -82,6 +82,18 @@ telemetry, and do not hand-write delegation records while hooks are live.
 
 ## Dispatch rules
 
+- Size each packet to the largest coherent chunk of ownership the delegate
+  handles reliably: start outcome-shaped, and split into narrower packets
+  only after an integration check fails — logging in attempts.md which
+  decomposition the failure required, so later dispatches start from
+  evidence about the executing model, not habit imported from another.
+- Where the host exposes a per-delegate depth or effort control, set it to
+  match the packet's consequence. Intensity prose in the packet ("be
+  thorough", "double-check everything") is not a substitute and is never
+  written — the evidence standard already says what rigor means here.
+- Where the host supports continuing a prior delegate, reuse one whose
+  accumulated context still pays for itself across related packets; where it
+  does not, the note file in `.mission/notes/` is the re-brief.
 - Launch independent read-only agents concurrently, in a single message.
 - Never launch two write-capable agents whose scopes overlap. For parallel
   edits, use isolated worktrees/branches with a designated merge step, or

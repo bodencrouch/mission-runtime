@@ -1,6 +1,6 @@
 {
   "name": "mission-runtime",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Give Claude an outcome instead of a task list. The runtime recovers the need behind your words, writes an operating contract, plans and delegates work to specialist subagents, verifies results with evidence, and keeps mission memory on disk so work survives sessions. It stops only when the outcome is verified — or says honestly why it cannot be. Local-only telemetry records what each run cost.",
   "author": {
     "name": "Boden Crouch"

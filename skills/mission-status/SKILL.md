@@ -7,7 +7,7 @@ description: >
   mission-runtime mission. It reports from the durable `.mission/` ledgers
   without pausing or redirecting the work.
 metadata:
-  version: "0.3.0"
+  version: "0.4.0"
 ---
 
 # Mission Status
