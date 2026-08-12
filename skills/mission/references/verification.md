@@ -50,6 +50,9 @@ into one becomes a threshold on the other: search the whole scope, then report
 ranked by severity, nits labeled as nits. A real correctness defect is not
 dropped for being moderate, and a thin report is not padded to look thorough —
 manufactured findings cost the mission the cycles it takes to disprove them.
+Reviewers search broadly, then report every finding that affects
+correctness or the stated requirements and no others — the reporting bar
+filters the report, never the search.
 Material findings become queue tasks; the review verdict is logged in
 verification.md. A second-pass audit that finds nothing new is itself
 evidence for stopping.

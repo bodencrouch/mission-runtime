@@ -35,28 +35,26 @@ documentation, and follow-up inspection. Never reduce a mission to the first
 obvious task. If the wording is truly a bounded micro-task ("rename this
 variable"), just do it — the runtime's ceremony would cost more than the task.
 
-## Working on any model
+## Any model, any phrasing
 
-The user writes however they write; the runtime runs on whatever model the
-host provides. Absorb both ends. Never ask the user to phrase things
-differently, and hold no prior belief about how much the executing model needs
-to be told — capability is observed during the mission, not assumed. Read
-`references/calibration.md` before the first dispatch and follow it. The
-standing rules, applying everywhere the runtime emits a prompt (delegation
-packets, retries, instructions to itself):
+The runtime runs on whatever model and host the user has, and the user's
+prompt needs no adjustment per model. Hold two consequences throughout:
 
-- Fix the destination, the reason behind it, the terrain already established,
-  the invariants, and what counts as evidence of arrival. Leave the route free.
-- Add route detail only as a repair for a miss observed in this mission, and
-  record the observation that justified it.
-- Express difficulty through the host's depth and model controls and through
-  constraints — a narrower objective, a higher verification tier — rather than
-  through intensity words.
-- Ask for evidence and conclusions, never for an account of how an answer was
-  reached; the ledgers need the former and no executor owes the latter.
-- Hold the action boundary: an investigation task returns findings, an
-  implementation task returns changes. Converting one into the other widens
-  authority, so it goes through the amendment protocol rather than initiative.
+- Specify outcomes, constraints, authority, and evidence; let the executing
+  model choose the route. Fixed procedure (search order, decomposition
+  depth, agent counts) is a repair for an observed failure in this mission,
+  logged in `.mission/decisions.md` with the failure it corrects — never a
+  standing habit imported from some other model's weaknesses.
+- Host facilities — session task lists, worktree isolation, schedulers,
+  per-agent effort controls — are used where they exist and replaced by
+  the ledgers where they do not. The ledgers are the only capability the
+  runtime requires.
+
+Users prompt however they are used to: normalization (intake, below) absorbs
+model-directed route phrasing — chain-of-thought rituals, agent-count
+prescriptions — and works from the substance. An explicit approval hold
+("wait for my OK before changing anything") is content, not route phrasing:
+it lands in the contract's authority tiers and is honored.
 
 ## Phase 0 — Intake
 
@@ -130,9 +128,10 @@ tasks → replan → continue.
 
 Ceremony scales with consequence: a low-consequence task earns a one-line
 Done entry; consequential work earns the full ledger treatment and review —
-uniform maximum ceremony would spend the budget on bookkeeping. Mirror the
-queue into the session task list (TaskCreate/TaskUpdate) so the user can
-watch progress, but treat `.mission/queue.md` as authoritative. Completing
+uniform maximum ceremony would spend the budget on bookkeeping. Where the
+host provides a session task list (e.g. TaskCreate/TaskUpdate), mirror the
+queue into it so the user can watch progress, but treat `.mission/queue.md`
+as authoritative — it is the copy that exists on every host. Completing
 the obviously-requested work is a loop event, not an exit condition: it
 triggers the continuation review (stopping reference), which generates the
 next round of work. Exit the loop only through the stopping policy.
@@ -244,6 +243,11 @@ ready for resumption.
 
 ## Turn boundaries and long horizons
 
+Within a turn, an available action outranks a statement of intent — a
+recorded repair: long autonomous runs across models have been observed
+ending turns on narrated next steps ("next I will run the tests") instead
+of the action. Treat such a sentence as the signal to act now; end working
+turns on completed actions or a genuine blocker.
 If the platform forces a turn to end before the mission is complete, that is a
 pause, not a stop: refresh `.mission/state.md` (the resume capsule) with the
 exact next action first, and resume the loop on the next turn without
