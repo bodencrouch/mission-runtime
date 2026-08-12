@@ -93,7 +93,7 @@ Three rules follow:
   load-bearing. Scaffolding whose reason nobody can name is debt. [F5][CE]
 - **Host capabilities are referenced conditionally.** "Where the host
   provides a session task list / worktree isolation / a scheduler / a
-  per-delegate effort control, use it" — always with the ledger-based
+  per-agent effort control, use it" — always with the ledger-based
   fallback stated, because the ledgers are the only capability the runtime
   requires. Depth-of-reasoning is host configuration, never prompt prose;
   intensity rituals are already banned under Register. [F5]
@@ -208,7 +208,11 @@ never restate it divergently. [SA][CCS]
 **Shared boilerplate.** A sentence that must appear in many agent files
 (report-delivery protocol, read-only note) has one canonical wording,
 recorded here or in the delegation reference, and is copied exactly.
-(House rule; nine-way copy-paste drift was observed.)
+(House rule; nine-way copy-paste drift was observed.) Current canonical
+sentence for reviewer agents, whose home is the verification reference:
+"Search broadly, then report every finding that affects <the packet's
+stated requirements> and no others — the reporting bar filters the report,
+never the search." — only the angle-bracketed object varies per agent.
 
 ## CLAUDE.md and user-facing docs
 

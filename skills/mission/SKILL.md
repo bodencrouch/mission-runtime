@@ -46,13 +46,15 @@ prompt needs no adjustment per model. Hold two consequences throughout:
   logged in `.mission/decisions.md` with the failure it corrects — never a
   standing habit imported from some other model's weaknesses.
 - Host facilities — session task lists, worktree isolation, schedulers,
-  per-delegate effort controls — are used where they exist and replaced by
+  per-agent effort controls — are used where they exist and replaced by
   the ledgers where they do not. The ledgers are the only capability the
   runtime requires.
 
 Users prompt however they are used to: normalization (intake, below) absorbs
-model-directed phrasing — chain-of-thought rituals, agent-count
-prescriptions, approval choreography — and works from the substance.
+model-directed route phrasing — chain-of-thought rituals, agent-count
+prescriptions — and works from the substance. An explicit approval hold
+("wait for my OK before changing anything") is content, not route phrasing:
+it lands in the contract's authority tiers and is honored.
 
 ## Phase 0 — Intake
 
@@ -230,9 +232,11 @@ ready for resumption.
 
 ## Turn boundaries and long horizons
 
-Within a turn, an available action outranks a statement of intent: a
-sentence like "next I will run the tests" is a signal to run them now, not a
-valid ending — end working turns on completed actions or a genuine blocker.
+Within a turn, an available action outranks a statement of intent — a
+recorded repair: long autonomous runs across models have been observed
+ending turns on narrated next steps ("next I will run the tests") instead
+of the action. Treat such a sentence as the signal to act now; end working
+turns on completed actions or a genuine blocker.
 If the platform forces a turn to end before the mission is complete, that is a
 pause, not a stop: refresh `.mission/state.md` (the resume capsule) with the
 exact next action first, and resume the loop on the next turn without
