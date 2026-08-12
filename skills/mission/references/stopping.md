@@ -97,7 +97,11 @@ The condition or capability that would make the mission viable.
 
 ## The final state report
 
-Never end with a bare "done." Deliver:
+Never end with a bare "done." The reader did not watch the run, so the report
+re-establishes context before it delivers detail: outcome first, then the
+evidence behind it, in complete sentences. Internal shorthand accumulated over
+a long mission — task ids, packet names, agent numbering, ledger line
+references — does not appear. Deliver:
 
 ```markdown
 # Mission Report — <mission, one line>

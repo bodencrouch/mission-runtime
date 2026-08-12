@@ -26,7 +26,11 @@ not a linear prompt chain: every cycle can reorder, add, or retire work.
    whether it can run in parallel. Mirror to the session task list where
    the host provides one; queue.md stays authoritative.
 5. **Execute** — take the highest-value unblocked task. Do it directly or
-   delegate per the delegation protocol.
+   delegate per the delegation protocol. Honor the task's deliverable type:
+   an investigation task produces findings and an implementation task
+   produces changes. Discovering mid-task that the other one is warranted
+   creates a queue entry for the prioritization to weigh — it does not
+   silently widen the task in flight.
 6. **Verify** — apply the verification reference. Unverified work does not
    count as done.
 7. **Update memory** — record results, new facts, rejected approaches, new
@@ -38,7 +42,11 @@ not a linear prompt chain: every cycle can reorder, add, or retire work.
    reference against what was just learned (full review after consequential
    completions and the first deliverable; a quick scan otherwise).
 9. **Replan** — check the current plan is still the best route; detect stalls
-   (see below).
+   (see below); calibrate. A delegate that overran its scope, under-evidenced
+   a claim, stopped short of its authority, or spent heavily for a small
+   finding is a packet defect first: apply the minimal repair from the
+   calibration reference, record the observation behind it, and retire
+   repairs that no longer show up in the returns.
 10. **Continue or stop** — next task, or the stopping policy.
 
 ## Prioritization
@@ -97,6 +105,12 @@ because the window feels short. Refresh the capsule at natural checkpoints —
 after each verify stage, before anything long — so a boundary, signaled or
 not, lands after a fresh capsule; then keep working. Continuity of intent,
 not continuity of text.
+
+Context is the orchestrator's resource to manage, and no delegate is handed a
+figure describing how much of it remains: an executor watching its own window
+spends the work budget on winding down instead of working. If the host
+surfaces such a figure into a delegation, say plainly in the packet that
+context is managed outside the agent and the work continues.
 
 ## Budgets
 
