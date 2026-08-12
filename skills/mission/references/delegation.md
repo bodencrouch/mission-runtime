@@ -55,7 +55,11 @@ dispatch. The nine slots, the self-containment rule, the chassis tool grants,
 and the pre-dispatch gate live in `commission.md`. Read it before the first
 dispatch, and again whenever a returned report comes back shallow or duplicates
 another agent's work — both failures trace to the commission rather than to the
-chassis, and the repair is the failing slot.
+chassis, and the repair is the failing slot. What the runtime declines to put
+in a commission — step-level routes, reasoning narration, intensity words,
+enumerated permission lists, fixed agent counts, a remaining-context figure —
+is catalogued in the calibration reference, alongside the ratchet that adds
+one back only as a repair for an observed miss.
 
 ## Dispatch rules
 
@@ -83,12 +87,18 @@ chassis, and the repair is the failing slot.
   accumulated context still pays for itself across related commissions; where
   it does not, the note file in `.mission/notes/` is the re-brief.
 - Launch independent read-only agents concurrently, in a single message.
+  Concurrency follows from independence; a target number of agents is not a
+  goal, and neither is keeping the roster busy.
 - Never launch two write-capable agents whose scopes overlap. For parallel
   edits, use isolated worktrees/branches with a designated merge step, or
   serialize.
 - Record every dispatch in queue.md (task → owner → files owned), and check
   that ownership record before launching any writer.
 - Prefer one writer + read-only reviewers over co-writers.
+- Where the host supports continuing a delegate rather than respawning it,
+  continue it for related follow-up work — accumulated context is worth more
+  than a cold restart. Verification is the standing exception: a review is
+  dispatched fresh, because independence from the work is what it is for.
 
 **Telemetry.** Delegations are recorded automatically by the host hooks
 described in the telemetry reference — the agent type and the commission are
@@ -118,4 +128,11 @@ Do not: delegate the whole mission to one giant subagent; spawn agents to
 appear busy; let a subagent's question bubble up to the user (answer it from
 the contract and ledgers, or make the call and log it); treat agent output as
 accepted project state before validation; give an implementation agent an
-open-ended "improve things" commission.
+open-ended "improve things" commission; forward the user's message as the
+commission (it is evidence about the need, and the commission is what the
+runtime makes of it); prescribe a tool-by-tool route the agent can derive from
+the objective.
+
+A returned report that misses in one of these ways is a commission defect
+before it is an agent defect. Apply the minimal repair from the calibration
+reference's signal table, record the observation behind it, and re-dispatch.

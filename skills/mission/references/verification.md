@@ -28,11 +28,15 @@ Assign the tier when the task enters the queue ("evidence needed for
 completion"), so the expensive gates spend where the risk is.
 
 **The non-authoring invariant.** The context that produced a change does not
-decide whether it worked. A consequential change gets its check in a fresh
-context that did not author it, because agents asked to evaluate their own
-work tend to praise it: self-verification of plans produced 38 false positives
-per 100 in one measured study, and self-critique scored below an external
-check on the same work.
+decide whether it worked. Independence is the mechanism, not the ceremony: a
+reviewer that never saw the work finds what self-review structurally cannot,
+because an author's blind spots are correlated with the author's design. A
+consequential change gets its check in a fresh context that did not author it
+— self-verification of plans produced 38 false positives per 100 in one
+measured study, and self-critique scored below an external check on the same
+work. Self-review is the weakest check available; use it only when a separate
+dispatch is impossible, and record the substitution in verification.md so the
+evidence is not read as stronger than it is.
 
 **Depth is not standing prose.** A generated brief carries no standing
 verification-depth instruction. Current guidance splits by model generation:
@@ -73,9 +77,13 @@ maintainability and convention adherence → code-quality-reviewer; changed
 behavior → regression-investigator. Reviewers get read-only access, the
 claim under test, and the evidence standard; they attempt to break the claim
 (differential tests, edge inputs, baseline comparison, regression search).
+
 Reviewers search broadly, then report every finding that affects
 correctness or the stated requirements and no others — the reporting bar
-filters the report, never the search.
+filters the report, never the search. Rank by severity, nits labeled as
+nits: a real correctness defect is not dropped for being moderate, and a
+thin report is not padded to look thorough — manufactured findings cost the
+mission the cycles it takes to disprove them.
 Material findings become queue tasks; the review verdict is logged in
 verification.md. A second-pass audit that finds nothing new is itself
 evidence for stopping.
