@@ -43,8 +43,10 @@ input handling, auth, secrets, permissions, dependencies → security-reviewer;
 maintainability and convention adherence → code-quality-reviewer; changed
 behavior → regression-investigator. Reviewers get read-only access, the
 claim under test, and the evidence standard; they attempt to break the claim
-(differential tests, edge inputs, baseline comparison, regression search)
-and flag only gaps that affect correctness or the stated requirements.
+(differential tests, edge inputs, baseline comparison, regression search).
+Reviewers search broadly, then report every finding that affects
+correctness or the stated requirements and no others — the reporting bar
+filters the report, never the search.
 Material findings become queue tasks; the review verdict is logged in
 verification.md. A second-pass audit that finds nothing new is itself
 evidence for stopping.
