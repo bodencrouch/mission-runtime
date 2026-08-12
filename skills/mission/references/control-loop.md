@@ -23,7 +23,8 @@ not a linear prompt chain: every cycle can reorder, add, or retire work.
    Each task records: traceability (one line linking it to the mission or to
    discovered evidence), expected value, cost, risk, reversibility,
    dependencies, required expertise, evidence needed for completion, and
-   whether it can run in parallel. Mirror to the session task list.
+   whether it can run in parallel. Mirror to the session task list where
+   the host provides one; queue.md stays authoritative.
 5. **Execute** — take the highest-value unblocked task. Do it directly or
    delegate per the delegation protocol.
 6. **Verify** — apply the verification reference. Unverified work does not
@@ -92,8 +93,10 @@ reference) so a cold read of `.mission/` alone allows coherent continuation.
 Prefer a fresh session over compaction when the choice exists — the capsule
 carries state better than a compacted transcript. Window pressure is host
 machinery, not mission strategy: never shrink scope or wind work down
-because the window feels short — the capsule makes any boundary safe, so
-refresh it and keep working. Continuity of intent, not continuity of text.
+because the window feels short. Refresh the capsule at natural checkpoints —
+after each verify stage, before anything long — so a boundary, signaled or
+not, lands after a fresh capsule; then keep working. Continuity of intent,
+not continuity of text.
 
 ## Budgets
 
