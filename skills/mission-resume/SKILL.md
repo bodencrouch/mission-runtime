@@ -10,7 +10,7 @@ description: >
   It reloads the durable mission state and re-enters the control loop without
   asking the user to restate anything.
 metadata:
-  version: "0.3.0"
+  version: "0.4.0"
 ---
 
 # Resume a Mission
@@ -36,8 +36,9 @@ user to restate the objective, prior decisions, or context that exists in
    its HEAD anchor), `git status`, a cheap test run if the suite is fast.
    Fold discrepancies into the queue as new evidence, and re-verify any Done
    items whose files changed externally.
-4. Rebuild the session task list from `queue.md` (TaskCreate), mark the
-   active task in progress, and execute the capsule's "Next action".
+4. Where the host provides a session task list (e.g. TaskCreate), rebuild it
+   from `queue.md` and mark the active task in progress — `queue.md` stays
+   authoritative either way. Then execute the capsule's "Next action".
 5. Re-enter the full control loop exactly as defined by the `mission` skill
    and its references. All contract terms — authority tiers, question gate,
    communication rules, stopping policy — remain in force unchanged. If the

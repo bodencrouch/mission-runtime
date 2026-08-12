@@ -11,6 +11,7 @@ rather than sourced guidance say so.
 - [The one test](#the-one-test)
 - [Framing](#framing)
 - [Altitude](#altitude)
+- [Model portability](#model-portability)
 - [Register](#register)
 - [Structure](#structure)
 - [Examples](#examples)
@@ -72,6 +73,35 @@ Calibrate specificity to fragility ("degrees of freedom") [SBP]:
 | High | prioritization, replanning, intent reconstruction | principles + one example |
 | Medium | delegation packets, the operating contract | template with slots |
 | Low | ledger schemas, telemetry record shape, test and doctor commands | exact template, exact command |
+
+## Model portability
+
+The runtime runs on whatever model and host the user already has, and its
+promise is that the user's prompt needs no adjustment per model. Prompt
+surfaces therefore specify the destination, the terrain, the laws, and the
+evidence of arrival — never the route. Name outcomes, invariants, authority,
+and evidence standards; leave search order, decomposition, tool sequence,
+and reasoning depth to the executing model. [F5][CE]
+
+Three rules follow:
+
+- **No model names, no model-generation compensations as permanent rules.**
+  A procedure added because some model needed it (forced planning phases,
+  fixed agent counts, mandated search sequences, continuation nagging) is a
+  *repair*, not a default. A repair is recorded with the observed failure it
+  corrects, so it can be retested and retired when it stops being
+  load-bearing. Scaffolding whose reason nobody can name is debt. [F5][CE]
+- **Host capabilities are referenced conditionally.** "Where the host
+  provides a session task list / worktree isolation / a scheduler / a
+  per-agent effort control, use it" — always with the ledger-based
+  fallback stated, because the ledgers are the only capability the runtime
+  requires. Depth-of-reasoning is host configuration, never prompt prose;
+  intensity rituals are already banned under Register. [F5]
+- **Discovery and reporting are separate policies.** An instruction that
+  limits what is *reported* (severity thresholds, "only material findings")
+  must never be phrased so it limits what is *searched for* — a model that
+  follows instructions well will faithfully suppress real findings. State
+  the search breadth and the reporting bar as two clauses. [F5]
 
 ## Register
 
@@ -178,7 +208,11 @@ never restate it divergently. [SA][CCS]
 **Shared boilerplate.** A sentence that must appear in many agent files
 (report-delivery protocol, read-only note) has one canonical wording,
 recorded here or in the delegation reference, and is copied exactly.
-(House rule; nine-way copy-paste drift was observed.)
+(House rule; nine-way copy-paste drift was observed.) Current canonical
+sentence for reviewer agents, whose home is the verification reference:
+"Search broadly, then report every finding that affects <the packet's
+stated requirements> and no others — the reporting bar filters the report,
+never the search." — only the angle-bracketed object varies per agent.
 
 ## CLAUDE.md and user-facing docs
 
@@ -209,8 +243,9 @@ change lands in `.claude-plugin/plugin.json` and
 4. Cross-references resolve; the terminology table is respected; every
    skill description keeps or strengthens its concrete trigger phrases.
 5. For consequential rewrites: a fresh-context adversarial review, told to
-   flag only gaps that affect correctness or the stated requirements —
-   reviewers prompted merely to "find gaps" will invent some. [F5][CCBP]
+   search broadly but report only gaps that affect correctness or the stated
+   requirements — reviewers prompted merely to "find gaps" will invent some,
+   and a reporting bar phrased as a search limit suppresses real ones. [F5][CCBP]
 
 ## Sources
 
