@@ -85,6 +85,14 @@ In short:
    Ambiguity is absorbed, not amplified: resolve it by inspection, research,
    safe experiment, reversible default, or deferral.
 
+When the ask is too underspecified to build from — two or more of outcome,
+boundary, situation, and criteria still missing after inspection — run the
+`mission-brief` skill in the same turn as the readback. It offers those
+decisions as answer cards with autofilled options and defaults that fire on
+silence, which costs the user a keystroke instead of a paragraph and delays
+no work. It is not an exception to the question gate: a card that would stop
+progress if unanswered is a gate question and follows the gate's rules.
+
 ## Durable memory
 
 Initialize `.mission/` at the project root per `references/memory.md` (read it

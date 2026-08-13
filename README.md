@@ -60,6 +60,7 @@ where it left off, without you re-explaining anything.
 | You say | What happens |
 |---|---|
 | Any outcome-shaped goal — "make the tests solid" | A mission starts (`/mission-runtime:mission`) |
+| Something half-explained — "make it better", "just figure it out", "idk" | It works out the gaps and offers you a short pick-list (`/mission-runtime:mission-brief`) |
 | "mission status", "what's left?" | A progress report (`/mission-runtime:mission-status`) |
 | "resume the mission" | Picks up a paused mission (`/mission-runtime:mission-resume`) |
 | "how much did that mission cost?", "stop recording my prompts" | Telemetry answers and settings (`/mission-runtime:mission-telemetry`) |
@@ -109,6 +110,15 @@ break the claim.
 — missing credentials, an irreversible step, two of your requirements in
 direct conflict. Even then it finishes everything else first, and tells you
 what happens if you never answer.
+
+**Half-explained asks.** If what you said is too vague to build from, you do
+not get an interrogation. You get one short pick-list: at most three
+questions, each with real answers already filled in from your own project,
+one of them marked as what it will do anyway. Work starts right away, and
+ignoring the list is a valid answer — the marked option just happens. Every
+list also has a "decide for me" option that switches off the questions for
+the rest of the mission. Say "just figure it out" up front and it skips the
+list entirely.
 
 **Stopping.** It stops when the goal is verifiably met, when what remains is
 not worth the cost, or when it has honestly failed — and says which, with

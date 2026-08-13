@@ -18,7 +18,7 @@ Almost everything in this repo is instructions: skills, reference docs, agent de
 
 ### Skills (`skills/` directory)
 
-Four skills, each `skills/<name>/SKILL.md` with frontmatter `name`, `description` (the trigger surface — concrete quoted phrases, third person), and `metadata.version` (kept equal to the plugin version):
+Five skills, each `skills/<name>/SKILL.md` with frontmatter `name`, `description` (the trigger surface — concrete quoted phrases, third person), and `metadata.version` (kept equal to the plugin version):
 
 - **mission** — the orchestrator: intake (need-behind-the-ask diagnosis, message normalization, contract, readback), the control loop, commissioning, verification, the question gate, communication rules, stopping. Its ten reference docs live in `skills/mission/references/` and are each linked once from the SKILL.md body:
   - `calibration.md` — the model-agnostic emission doctrine: what every emitted prompt fixes (destination, reason, terrain, laws, evidence) and what it leaves free (the route), the constructs the runtime never emits, the scaffolding ratchet, the observed-signal → commission-repair table, depth as dispatch configuration, the host capability probe.
@@ -31,6 +31,9 @@ Four skills, each `skills/<name>/SKILL.md` with frontmatter `name`, `description
   - `verification.md` — tiered verification depth, the evidence standard, independent review routing, the problem-id circuit breaker (three attempts, then stop-and-choose).
   - `stopping.md` — continuation review, stopping conditions, stop-as-decision, failure reports, the final report template.
   - `telemetry.md` — the two capture paths, the fallback record shape, privacy controls, the recorder's three rules.
+- **mission-brief** — the elicitation front half: fires when an ask is too underspecified to build from, recovers the four decision inputs (outcome, boundary, situation, criteria) by conversation, and hands the result to `mission` as contract material. Non-blocking by construction — every question is an answer card with autofilled options, a marked default that fires on silence, and a hands-off option; work starts in the same turn the cards are offered. Its two reference docs live in `skills/mission-brief/references/` and are each linked once from its SKILL.md body:
+  - `elicitation.md` — the measured conversational moves that draw out detail, the ones that end a thread, and the disclosure-beats-questions asymmetry behind both.
+  - `answer-cards.md` — card anatomy, autofill sourcing and provenance, the default/silence contract, the hands-off waiver boundary, and the cards that should not be sent.
 - **mission-resume** — reload `.mission/`, reconcile against repo reality, re-enter the loop without re-asking anything.
 - **mission-status** — declarative progress or final report from the ledgers, anchored on the capsule's Reported-through timestamp; never a permission request.
 - **mission-telemetry** — report recorded run data, check that recording works (doctor first, always), change telemetry settings.
@@ -82,7 +85,7 @@ python3 -m unittest discover -s tests
 ```
 
 - `tests/test_telemetry.py` covers the properties the telemetry subsystem may not lose: recorder exits 0 on hostile input, unwritable store, path-traversal session ids; host dialects normalize to the same fields; config/env switches take effect and env wins; the report survives corrupt lines and empty stores; hook configs parse, reference the recorder, and stay async; the installer renders valid JSON and backs up what it replaces. Tests point `MISSIONRUNTIME_HOME` at a temp directory.
-- `tests/test_runtime_conformance.py` mechanically enforces the style guide on the markdown runtime: skill/agent frontmatter shape, description length and person, `metadata.version` == plugin version, SKILL.md line ceiling, every reference linked from the mission SKILL.md exactly once, agent `tools` declared least-privilege (read-only set excludes write tools; no `Agent` anywhere), prose descriptions, valid colors, delegation roster completeness, the five hazard-pattern greps, and manifest description/version parity. The fifth hazard is model coupling: no skill, agent, or reference may name a model or model family, because a capability assumption written into a surface can neither be observed nor retired. Sourced model-specific findings go in `docs/prompt-style.md`.
+- `tests/test_runtime_conformance.py` mechanically enforces the style guide on the markdown runtime: skill/agent frontmatter shape, description length and person, `metadata.version` == plugin version, SKILL.md line ceiling, every reference linked from its own skill's SKILL.md exactly once and never from a sibling reference, agent `tools` declared least-privilege (read-only set excludes write tools; no `Agent` anywhere), prose descriptions, valid colors, delegation roster completeness, the five hazard-pattern greps, and manifest description/version parity. The fifth hazard is model coupling: no skill, agent, or reference may name a model or model family, because a capability assumption written into a surface can neither be observed nor retired. Sourced model-specific findings go in `docs/prompt-style.md`.
 
 ## Working With This Codebase
 

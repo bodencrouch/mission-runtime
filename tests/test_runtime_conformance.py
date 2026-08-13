@@ -14,7 +14,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 SKILLS = sorted((REPO / "skills").glob("*/SKILL.md"))
 AGENTS = sorted((REPO / "agents").glob("*.md"))
-REFERENCES = sorted((REPO / "skills" / "mission" / "references").glob("*.md"))
+REFERENCES = sorted((REPO / "skills").glob("*/references/*.md"))
 
 # Agents whose charter is read-only: they must not hold write tools.
 READ_ONLY_AGENTS = {
@@ -98,7 +98,13 @@ class SkillConformance(unittest.TestCase):
     def test_skills_exist(self):
         self.assertEqual(
             {p.parent.name for p in SKILLS},
-            {"mission", "mission-resume", "mission-status", "mission-telemetry"},
+            {
+                "mission",
+                "mission-brief",
+                "mission-resume",
+                "mission-status",
+                "mission-telemetry",
+            },
         )
 
     def test_frontmatter_shape(self):
@@ -135,16 +141,32 @@ class SkillConformance(unittest.TestCase):
                 f"{path}: SKILL.md body over the 500-line ceiling",
             )
 
-    def test_mission_links_every_reference_exactly_once(self):
-        body = (REPO / "skills" / "mission" / "SKILL.md").read_text()
+    def test_each_skill_links_its_own_references_exactly_once(self):
+        for skill in SKILLS:
+            body = skill.read_text(encoding="utf-8")
+            for ref in sorted((skill.parent / "references").glob("*.md")):
+                count = body.count(f"references/{ref.name}")
+                self.assertEqual(
+                    count, 1,
+                    f"{skill.parent.name}: reference {ref.name} linked "
+                    f"{count} times: zero means Claude never reads it; more "
+                    "than one means SKILL.md is not the single map the style "
+                    "guide requires",
+                )
+
+    def test_references_do_not_link_each_other(self):
+        # The style guide gives SKILL.md sole ownership of the reference map;
+        # a reference that links a sibling creates a second, divergent map.
         for ref in REFERENCES:
-            count = body.count(f"references/{ref.name}")
-            self.assertEqual(
-                count, 1,
-                f"reference {ref.name} linked {count} times: zero means "
-                "Claude never reads it; more than one means SKILL.md is not "
-                "the single map the style guide requires",
-            )
+            text = ref.read_text(encoding="utf-8")
+            for other in REFERENCES:
+                if other == ref:
+                    continue
+                self.assertNotIn(
+                    f"references/{other.name}", text,
+                    f"{ref.name} links {other.name}; references name concepts "
+                    "and let SKILL.md own the map",
+                )
 
 
 class AgentConformance(unittest.TestCase):

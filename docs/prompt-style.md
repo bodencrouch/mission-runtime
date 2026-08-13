@@ -166,6 +166,10 @@ One term per concept, everywhere:
 | `.mission/state.md` | the resume capsule |
 | A delegation's role and brief, one artifact | the commission |
 | A blocking ask, with default and silence behavior | the question packet |
+| The opening exchange that recovers an underspecified ask | brief |
+| One decision offered with pre-filled options and a default | answer card |
+| The card option that waives further questions | hands-off mode |
+| Outcome, boundary, situation, criteria | decision inputs |
 | An agent's returned output | report |
 | `~/.missionruntime/` | the store |
 | Loop stages | interpret, inspect, model, queue, commission, execute, verify, update memory, generate follow-ups, replan |
